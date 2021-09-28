@@ -171,9 +171,11 @@ PickupOrders(int rest)
 }
 
 // stack all orders
-void orderStack()
+int orderStack()
 {
     raven::set::cRunWatch aWatcher("stack");
+
+    int stackCount = 0;
 
     // sort
     SortByTime();
@@ -190,7 +192,11 @@ void orderStack()
 
         // pickup some orders from resteraunt
         auto v = PickupOrders(nextRest);
+
+        stackCount++;
     }
+
+    return stackCount;
 }
 
 /// time profile
@@ -204,7 +210,11 @@ main()
 
     raven::set::cRunWatch::Start();
 
-    orderStack();
+    int stackCount = orderStack();
+
+    std::cout << stackCount << " order stacks created\n";
 
     raven::set::cRunWatch::Report();
+
+
 }
