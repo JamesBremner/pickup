@@ -8,6 +8,6 @@
 
 (3) Starting from the order that has the smallest remaining prep time,
  look for any orders in the same restaurant within the time window (let's say 3-5 mins),
- if exists group them as a stack. O(1).
+ if exists group them as a stack.
 
  https://stackoverflow.com/q/69355474/16582
