@@ -38,13 +38,21 @@ void InitConfig()
 {
     theConfig.OrdersPerHour = 20000;        // incoming order per hour
     theConfig.GroupTimeMins = 5;            // order collection time
-    theConfig.ResterauntCount = 1000;       // number of resteraunts
+    theConfig.ResterauntCount = 5000;       // number of restaurants
     theConfig.PickupWindowMins = 5;         // pickup window time
     theConfig.MaxPrepTimeMins = 15;         // maximum order preparation time
 
     theConfig.OrdersPerGroupTime =
         theConfig.GroupTimeMins * theConfig.OrdersPerHour / 60;
     theConfig.PickupWindowSecs = theConfig.PickupWindowMins * 60;
+
+    std::cout 
+        << "Orders per hour                  " << theConfig.OrdersPerHour
+        << "\nOrder collection time mins     " << theConfig.GroupTimeMins
+        << "\nRestaurants                    " << theConfig.ResterauntCount
+        << "\nPickup window mins             " << theConfig.PickupWindowMins
+        << "\nMaximum order preparation mins " << theConfig.MaxPrepTimeMins
+        << "\n";
 }
 
 class cOrder
