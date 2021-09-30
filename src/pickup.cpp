@@ -17,13 +17,16 @@
 #include <vector>
 #include <algorithm>
 #include "cRunWatch.h"
+#include "quadtree.h"
 #include "config.h"
 #include "cOrder.h"
 
 pup::sConfig theConfig;
-std::vector<pup::cRestaurant> theRestaurants(theConfig.RestaurantCount);
+std::vector<pup::cRestaurant> theRestaurants;
 std::vector<pup::cOrder> theOrders;
 std::vector<pup::cStack> theStacks;
+std::vector<pup::cRider> theRiders;
+quad::cCell *theQuadTree;
 
 /// Configure simulation parameters
 void InitConfig()
@@ -33,10 +36,15 @@ void InitConfig()
     theConfig.RestaurantCount = 5000; // number of restaurants
     theConfig.PickupWindowMins = 5;   // pickup window time
     theConfig.MaxPrepTimeMins = 15;   // maximum order preparation time
+    theConfig.RestaurantMaxDimKm = 25; // maximum dimension of restaurant locations
+    theConfig.CloseRiderDistanceKm = 0.33;
 
     theConfig.OrdersPerGroupTime =
         theConfig.GroupTimeMins * theConfig.OrdersPerHour / 60;
     theConfig.PickupWindowSecs = theConfig.PickupWindowMins * 60;
+    theConfig.RiderCount = theConfig.RestaurantCount; // one rider per restaurant
+
+    theRestaurants.resize(theConfig.RestaurantCount);
 
     std::cout
         << "Orders per hour                  " << theConfig.OrdersPerHour
@@ -48,6 +56,12 @@ void InitConfig()
 }
 namespace pup
 {
+    cRider::cRider()
+    {
+        myLocation.first = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
+        myLocation.second = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
+        myBusy = false;
+    }
     cRestaurant::cRestaurant()
     {
         myLocation.first = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
@@ -64,7 +78,6 @@ namespace pup
 
 }
 
-
 /// Simulate orders generated in one collection time
 void GenerateOrders()
 {
@@ -72,6 +85,23 @@ void GenerateOrders()
     for (int o; o < theConfig.OrdersPerGroupTime; o++)
     {
         theOrders.push_back(pup::cOrder());
+    }
+}
+
+void LocateRiders()
+{
+    theRiders.resize(theConfig.RestaurantCount);
+
+    float dim2 = theConfig.RestaurantMaxDimKm / 2.0;
+    theQuadTree = new quad::cCell(quad::cPoint(dim2, dim2), dim2);
+
+    int index = 0;
+    for (auto &r : theRiders)
+    {
+        theQuadTree->insert(quad::cPoint(
+            r.myLocation.first,
+            r.myLocation.second,
+            index++ ));
     }
 }
 
@@ -185,7 +215,7 @@ int orderStack()
             break; // all orders picked up
 
         // pickup some orders from resteraunt
-        theStacks.push_back( PickupOrders(nextRest) );
+        theStacks.push_back(PickupOrders(nextRest));
 
         stackCount++;
     }
@@ -201,6 +231,7 @@ main()
     // Initialize
     InitConfig();
     GenerateOrders();
+    LocateRiders();
 
     raven::set::cRunWatch::Start();
 
@@ -208,8 +239,11 @@ main()
 
     std::cout << stackCount << " order stacks created\n";
 
-    for( auto& S : theStacks )
+    for (auto &S : theStacks)
+    {
         S.deliveryLocations();
+        S.rider();
+    }
 
     raven::set::cRunWatch::Report();
 }

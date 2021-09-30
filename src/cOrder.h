@@ -8,6 +8,15 @@ public:
     cRestaurant();
 };
 
+class cRider
+{
+    public:
+    std::pair<float,float> myLocation;
+    bool myBusy;
+
+    cRider();
+};
+
 ///  An order placed at a resteraunt to be delivered to a location
 class cOrder
 {
@@ -41,8 +50,14 @@ class cStack
     /// delivery locations in optimized order
     std::vector<std::pair<float,float> >
     deliveryLocations();
+
+    // allocate rider
+    void rider();
 };
 
 }
 
 extern std::vector<pup::cRestaurant> theRestaurants;
+extern quad::cCell *theQuadTree;
+extern pup::sConfig theConfig;
+extern std::vector<pup::cRider> theRiders;

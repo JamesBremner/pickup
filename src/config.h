@@ -10,6 +10,8 @@ struct sConfig
     int RestaurantMaxDimKm; // maximum dimension of restaurant locations
     int PickupWindowMins;   // pickup window time
     int MaxPrepTimeMins;    // maximum order preparation time
+    int RiderCount;         // number of delivery riders;
+    float CloseRiderDistanceKm;    // maximum distance of rider to be allocated to order stack
 
 
     // calculated values

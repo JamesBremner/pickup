@@ -1,26 +1,30 @@
 #source file search paths
-VPATH = ../../src ../../../raven-set ../../../PathFinder/src
+VPATH = ../../src \
+	../../../raven-set ../../../PathFinder/src ../../../quadtree/src
 
 INCS = \
 	-I../../../boost/boost1_72 \
 	-I../../../raven-set \
 	-I../../../PathFinder/src \
+	-I../../../quadtree/src \
 	-I../../src
 
 # folder for .o files
 ODIR=./obj
 
+OPT=-O2
+
 # sources
 _TST = pickup.o cStack.o \
-	cPathFinder.o cGraph.o cRunWatch.o
-	
+	cPathFinder.o cGraph.o quadtree.o cRunWatch.o
+
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 
 $(ODIR)/%.o: %.cpp 
-	g++ -O2  -std=c++17  \
+	g++ $(OPT)  -std=c++17  \
 	-c -o $@ $< $(INCS)
 
 test: $(TST)
-	g++ -O2 \
+	g++ $(OPT) \
 	-o ../../bin/pickup.exe $^
 

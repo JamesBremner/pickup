@@ -2,8 +2,12 @@
 #include <math.h>
 #include <iostream>
 #include <vector>
+
 #include <cRunWatch.h>
 #include "cPathFinder.h"
+
+#include "config.h"
+#include "quadtree.h"
 #include "cOrder.h"
 namespace pup
 {
@@ -49,13 +53,45 @@ namespace pup
         }
 
         // apply travelling salesman problem algorithm
-        auto path = finder.tsp( );
+        auto path = finder.tsp();
 
         // assemble delivery locations in optimal visit order
         std::vector<std::pair<float, float>> vOpt;
-        for( int idx = 1; idx < path.size()-1; idx++ )
-            vOpt.push_back( vl[ path[idx] ] );
+        for (int idx = 1; idx < path.size() - 1; idx++)
+            vOpt.push_back(vl[path[idx]]);
 
         return vOpt;
+    }
+
+    void cStack::rider()
+    {
+        raven::set::cRunWatch aWatcher("Allocate rider to stack");
+
+        // find riders acceptably close to restaurant
+        auto rest = restaurantLocation();
+        quad::cCell close(
+            quad::cPoint(rest.first, rest.second),
+            theConfig.CloseRiderDistanceKm);
+        auto riders = theQuadTree->find(close);
+
+        // find closest acceptable rider
+        float d = 1.0e10;
+        quad::cPoint * allocated;
+        for (auto &rider : riders)
+        {
+            float manhatten =
+                fabs(rest.first - rider->x) + fabs(rest.second - rider->y);
+            if (manhatten < d)
+            {
+                // check that rider is not busy with other orders
+                if( theRiders[ rider->userData ].myBusy )
+                    continue;
+                // TODO:  add any other constraint filter here
+
+                d = manhatten;
+                allocated = rider;
+            }
+        }
+        theRiders[ allocated->userData ].myBusy = true;
     }
 }
