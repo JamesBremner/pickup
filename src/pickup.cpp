@@ -23,6 +23,7 @@
 pup::sConfig theConfig;
 std::vector<pup::cRestaurant> theRestaurants(theConfig.RestaurantCount);
 std::vector<pup::cOrder> theOrders;
+std::vector<pup::cStack> theStacks;
 
 /// Configure simulation parameters
 void InitConfig()
@@ -61,24 +62,6 @@ namespace pup
         myDelivery.second = (rand() % 250) / 100.0;
     }
 
-    std::pair<float, float>
-    cStack::restaurantLocation()
-    {
-        std::pair<float, float> location;
-        if( myOrder.size() )
-            location = theRestaurants[ myOrder[0].myRest ].myLocation;
-        return location;
-    }
-
-        std::vector<std::pair<float,float> >
-    cStack::deliveryLocations()
-    {
-        std::vector<std::pair<float,float> > vl;
-
-        for( auto& d : myOrder )
-            vl.push_back( d.myDelivery );
-        return vl;
-    }
 }
 
 
@@ -185,7 +168,7 @@ PickupOrders(int rest)
 // stack all orders
 int orderStack()
 {
-    raven::set::cRunWatch aWatcher("stack");
+    raven::set::cRunWatch aWatcher("stacking orders");
 
     int stackCount = 0;
 
@@ -196,14 +179,13 @@ int orderStack()
     // loop until all orders picked up
     while (1)
     {
-
         // resteraunt with earliest ready order
         int nextRest = FindRestFirstNextPickup();
         if (nextRest == -1)
             break; // all orders picked up
 
         // pickup some orders from resteraunt
-        auto v = PickupOrders(nextRest);
+        theStacks.push_back( PickupOrders(nextRest) );
 
         stackCount++;
     }
@@ -225,6 +207,9 @@ main()
     int stackCount = orderStack();
 
     std::cout << stackCount << " order stacks created\n";
+
+    for( auto& S : theStacks )
+        S.deliveryLocations();
 
     raven::set::cRunWatch::Report();
 }

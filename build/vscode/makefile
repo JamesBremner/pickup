@@ -1,16 +1,19 @@
 #source file search paths
-VPATH = ../../src ../../../raven-set
+VPATH = ../../src ../../../raven-set ../../../PathFinder/src
 
 INCS = \
 	-I../../../boost/boost1_72 \
 	-I../../../raven-set \
+	-I../../../PathFinder/src \
 	-I../../src
 
 # folder for .o files
 ODIR=./obj
 
 # sources
-_TST = pickup.o  cRunWatch.o
+_TST = pickup.o cStack.o \
+	cPathFinder.o cGraph.o cRunWatch.o
+	
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 
 $(ODIR)/%.o: %.cpp 

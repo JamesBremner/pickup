@@ -38,7 +38,11 @@ class cStack
     std::pair<float,float>
     restaurantLocation();
 
+    /// delivery locations in optimized order
     std::vector<std::pair<float,float> >
     deliveryLocations();
 };
+
 }
+
+extern std::vector<pup::cRestaurant> theRestaurants;
