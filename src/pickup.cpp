@@ -17,66 +17,70 @@
 #include <vector>
 #include <algorithm>
 #include "cRunWatch.h"
+#include "config.h"
+#include "cOrder.h"
 
-struct sconfig
-{
-    // user values
-    int OrdersPerHour;
-    int GroupTimeMins;
-    int ResterauntCount;
-    int PickupWindowMins;
-    int MaxPrepTimeMins;
-
-    // calculated values
-    int OrdersPerGroupTime;
-    int PickupWindowSecs;
-
-} theConfig;
+pup::sConfig theConfig;
+std::vector<pup::cRestaurant> theRestaurants(theConfig.RestaurantCount);
+std::vector<pup::cOrder> theOrders;
 
 /// Configure simulation parameters
 void InitConfig()
 {
-    theConfig.OrdersPerHour = 20000;        // incoming order per hour
-    theConfig.GroupTimeMins = 5;            // order collection time
-    theConfig.ResterauntCount = 5000;       // number of restaurants
-    theConfig.PickupWindowMins = 5;         // pickup window time
-    theConfig.MaxPrepTimeMins = 15;         // maximum order preparation time
+    theConfig.OrdersPerHour = 20000;  // incoming order per hour
+    theConfig.GroupTimeMins = 5;      // order collection time
+    theConfig.RestaurantCount = 5000; // number of restaurants
+    theConfig.PickupWindowMins = 5;   // pickup window time
+    theConfig.MaxPrepTimeMins = 15;   // maximum order preparation time
 
     theConfig.OrdersPerGroupTime =
         theConfig.GroupTimeMins * theConfig.OrdersPerHour / 60;
     theConfig.PickupWindowSecs = theConfig.PickupWindowMins * 60;
 
-    std::cout 
+    std::cout
         << "Orders per hour                  " << theConfig.OrdersPerHour
         << "\nOrder collection time mins     " << theConfig.GroupTimeMins
-        << "\nRestaurants                    " << theConfig.ResterauntCount
+        << "\nRestaurants                    " << theConfig.RestaurantCount
         << "\nPickup window mins             " << theConfig.PickupWindowMins
         << "\nMaximum order preparation mins " << theConfig.MaxPrepTimeMins
         << "\n";
 }
-
-class cOrder
+namespace pup
 {
-public:
-    int myTime; // time, after start of group, when order will be ready for pickup
-    int myRest;
-    bool myWaiting;
-
-    cOrder()
+    cRestaurant::cRestaurant()
+    {
+        myLocation.first = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
+        myLocation.second = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
+    }
+    cOrder::cOrder()
     {
         myTime = rand() % theConfig.MaxPrepTimeMins;
-        myRest = rand() % theConfig.ResterauntCount;
+        myRest = rand() % theConfig.RestaurantCount;
         myWaiting = true;
+        myDelivery.first = (rand() % 250) / 100.0;
+        myDelivery.second = (rand() % 250) / 100.0;
     }
 
-    friend std::ostream &operator<<(std::ostream &os, cOrder o)
+    std::pair<float, float>
+    cStack::restaurantLocation()
     {
-        os << "rest " << o.myRest << " at " << o.myTime;
-        return os;
+        std::pair<float, float> location;
+        if( myOrder.size() )
+            location = theRestaurants[ myOrder[0].myRest ].myLocation;
+        return location;
     }
-};
 
-std::vector<cOrder> theOrders;
+        std::vector<std::pair<float,float> >
+    cStack::deliveryLocations()
+    {
+        std::vector<std::pair<float,float> > vl;
+
+        for( auto& d : myOrder )
+            vl.push_back( d.myDelivery );
+        return vl;
+    }
+}
+
 
 /// Simulate orders generated in one collection time
 void GenerateOrders()
@@ -84,7 +88,7 @@ void GenerateOrders()
     theOrders.clear();
     for (int o; o < theConfig.OrdersPerGroupTime; o++)
     {
-        theOrders.push_back(cOrder());
+        theOrders.push_back(pup::cOrder());
     }
 }
 
@@ -93,7 +97,7 @@ void SortByTime()
 {
     std::sort(
         theOrders.begin(), theOrders.end(),
-        [](cOrder &a, cOrder &b)
+        [](pup::cOrder &a, pup::cOrder &b)
         {
             return (a.myTime < b.myTime);
         });
@@ -104,7 +108,7 @@ void SortByRest()
 {
     std::stable_sort(
         theOrders.begin(), theOrders.end(),
-        [](const cOrder &a, const cOrder &b)
+        [](const pup::cOrder &a, const pup::cOrder &b)
         {
             return (a.myRest < b.myRest);
         });
@@ -115,7 +119,7 @@ int FindRestFirstNextPickup()
 {
     int nextRest = -1;
     int nextPickup = INT32_MAX;
-    for (int rest = 0; rest < theConfig.ResterauntCount; rest++)
+    for (int rest = 0; rest < theConfig.RestaurantCount; rest++)
     {
         for (auto &order : theOrders)
         {
@@ -144,10 +148,10 @@ int FindRestFirstNextPickup()
 }
 
 /// stack orders for a resteraunt
-std::vector<cOrder>
+pup::cStack
 PickupOrders(int rest)
 {
-    std::vector<cOrder> v;
+    pup::cStack S;
     int orderIndex;
     for (orderIndex = 0; orderIndex < theOrders.size(); orderIndex++)
     {
@@ -157,7 +161,7 @@ PickupOrders(int rest)
             break;
     }
     if (orderIndex == theOrders.size())
-        return v; // all orders picked up
+        return S; // all orders picked up
 
     for (; orderIndex < theOrders.size(); orderIndex++)
     {
@@ -165,7 +169,7 @@ PickupOrders(int rest)
             break;
         if (theOrders[orderIndex].myRest != rest)
             break;
-        v.push_back(theOrders[orderIndex]);
+        S.myOrder.push_back(theOrders[orderIndex]);
         theOrders[orderIndex].myWaiting = false;
     }
 
@@ -175,7 +179,7 @@ PickupOrders(int rest)
     //     std::cout << o << ",";
     // std::cout << "\n";
 
-    return v;
+    return S;
 }
 
 // stack all orders
@@ -223,6 +227,4 @@ main()
     std::cout << stackCount << " order stacks created\n";
 
     raven::set::cRunWatch::Report();
-
-
 }
