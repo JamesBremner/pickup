@@ -1,6 +1,6 @@
 # pickup
  
-  Order stacking
+  Order stacking and pickup
 
 (1) Collect orders per few minutes interval and sort all orders by their prep time 
 
@@ -9,5 +9,9 @@
 (3) Starting from the order that has the smallest remaining prep time,
  look for any orders in the same restaurant within the time window (let's say 3-5 mins),
  if exists group them as a stack.
+ 
+(4)  Optimize delivery route for every stack
+
+(5)  Assign riders to order stacks
 
  https://stackoverflow.com/q/69355474/16582
