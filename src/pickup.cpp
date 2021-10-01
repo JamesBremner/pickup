@@ -28,7 +28,12 @@ std::vector<pup::cStack> theStacks;
 std::vector<pup::cRider> theRiders;
 quad::cCell *theQuadTree;
 
-/// Configure simulation parameters
+/** Configure simulation parameters for simulation of one zone
+ * 
+ * "One zone could contain up to 5000 restaurants
+ * and the sum of all orders within one zone
+ * are up to 200k orders per hour."
+ */
 void InitConfig()
 {
     theConfig.OrdersPerHour = 20000;  // incoming order per hour
