@@ -17,16 +17,16 @@
 #include <vector>
 #include <algorithm>
 #include "cRunWatch.h"
-#include "quadtree.h"
 #include "config.h"
 #include "cOrder.h"
+#include "cRider.h"
 
 pup::sConfig theConfig;
 std::vector<pup::cRestaurant> theRestaurants;
 std::vector<pup::cOrder> theOrders;
 std::vector<pup::cStack> theStacks;
-std::vector<pup::cRider> theRiders;
-quad::cCell *theQuadTree;
+pup::cRiderPool * theRiders;
+
 
 /** Configure simulation parameters for simulation of one zone
  * 
@@ -41,7 +41,7 @@ void InitConfig()
     theConfig.RestaurantCount = 5000; // number of restaurants
     theConfig.PickupWindowMins = 5;   // pickup window time
     theConfig.MaxPrepTimeMins = 15;   // maximum order preparation time
-    theConfig.RestaurantMaxDimKm = 25; // maximum dimension of restaurant locations
+    theConfig.ZoneDimKm = 25;         // zone dimension
     theConfig.CloseRiderDistanceKm = 0.33;
 
     theConfig.OrdersPerGroupTime =
@@ -61,16 +61,11 @@ void InitConfig()
 }
 namespace pup
 {
-    cRider::cRider()
-    {
-        myLocation.first = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
-        myLocation.second = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
-        myBusy = false;
-    }
+
     cRestaurant::cRestaurant()
     {
-        myLocation.first = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
-        myLocation.second = (rand() % theConfig.RestaurantMaxDimKm * 100) / 100.0;
+        myLocation.first = (rand() % theConfig.ZoneDimKm * 100) / 100.0;
+        myLocation.second = (rand() % theConfig.ZoneDimKm * 100) / 100.0;
     }
     cOrder::cOrder()
     {
@@ -90,23 +85,6 @@ void GenerateOrders()
     for (int o; o < theConfig.OrdersPerGroupTime; o++)
     {
         theOrders.push_back(pup::cOrder());
-    }
-}
-
-void LocateRiders()
-{
-    theRiders.resize(theConfig.RestaurantCount);
-
-    float dim2 = theConfig.RestaurantMaxDimKm / 2.0;
-    theQuadTree = new quad::cCell(quad::cPoint(dim2, dim2), dim2);
-
-    int index = 0;
-    for (auto &r : theRiders)
-    {
-        theQuadTree->insert(quad::cPoint(
-            r.myLocation.first,
-            r.myLocation.second,
-            index++ ));
     }
 }
 
@@ -236,7 +214,7 @@ main()
     // Initialize
     InitConfig();
     GenerateOrders();
-    LocateRiders();
+    theRiders = new pup::cRiderPool();
 
     raven::set::cRunWatch::Start();
 
@@ -247,8 +225,10 @@ main()
     for (auto &S : theStacks)
     {
         S.deliveryLocations();
-        S.rider();
     }
+
+    // assign riders
+    theRiders->assign();
 
     raven::set::cRunWatch::Report();
 }

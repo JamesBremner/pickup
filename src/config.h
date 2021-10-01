@@ -7,7 +7,7 @@ struct sConfig
     int OrdersPerHour;      // incoming order per hour
     int GroupTimeMins;      // order collection time
     int RestaurantCount;    // number of restaurants
-    int RestaurantMaxDimKm; // maximum dimension of restaurant locations
+    int ZoneDimKm;          // zone dimensions
     int PickupWindowMins;   // pickup window time
     int MaxPrepTimeMins;    // maximum order preparation time
     int RiderCount;         // number of delivery riders;

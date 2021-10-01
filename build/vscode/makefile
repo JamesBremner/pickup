@@ -15,7 +15,7 @@ ODIR=./obj
 OPT=-O2
 
 # sources
-_TST = pickup.o cStack.o \
+_TST = pickup.o cStack.o cRider.o \
 	cPathFinder.o cGraph.o quadtree.o cRunWatch.o
 
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
