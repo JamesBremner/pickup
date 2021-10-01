@@ -8,7 +8,7 @@ public:
     cRestaurant();
 };
 
-///  An order placed at a resteraunt to be delivered to a location
+///  An order placed at a restaurant to be delivered to a location
 class cOrder
 {
 public:
@@ -46,12 +46,4 @@ class cStack
     void rider();
 };
 
-class cRiderPool;
-
 }
-
-
-extern std::vector<pup::cRestaurant> theRestaurants;
-extern pup::sConfig theConfig;
-extern std::vector<pup::cStack> theStacks;
-extern pup::cRiderPool * theRiders;

@@ -6,17 +6,16 @@
 #include <cRunWatch.h>
 #include "cPathFinder.h"
 
-#include "config.h"
-#include "quadtree.h"
-#include "cOrder.h"
+#include "cZone.h"
+
 namespace pup
 {
     std::pair<float, float>
     cStack::restaurantLocation()
     {
         std::pair<float, float> location;
-        if (myOrder.size())
-            location = ::theRestaurants[myOrder[0].myRest].myLocation;
+        if (myOrder.size() && theZone.myRestaurants.size() )
+            location = theZone.myRestaurants[myOrder[0].myRest].myLocation;
         return location;
     }
 
