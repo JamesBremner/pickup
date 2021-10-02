@@ -13,6 +13,8 @@ namespace pup
 
         /// Construct rider at random starting location
         cRider();
+
+        std::string text();
     };
 
     /// A pool of riders, available or busy delivering orders
@@ -20,7 +22,7 @@ namespace pup
     {
     public:
         // CTOR
-        cRiderPool();
+        cRiderPool( sConfig & myConfig );
 
         void simulate();
 
@@ -41,6 +43,7 @@ namespace pup
         }
 
     private:
+        sConfig & myConfig;
         std::vector<pup::cRider> myRiders; // the riders
         quad::cCell *myQuadTree;           // the riders starting locations in a quad tree
 

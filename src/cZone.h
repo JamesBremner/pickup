@@ -17,7 +17,7 @@ namespace pup
     public:
         pup::sConfig myConfig;
         std::vector<cOrder> myOrders;
-        std::vector<pup::cStack> myStacks;
+        std::vector<cStack> myStacks;
         std::vector<cRestaurant> myRestaurants;
         cRiderPool myRiders;
 

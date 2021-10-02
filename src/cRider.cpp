@@ -7,7 +7,6 @@
 
 #include "cZone.h"
 
-
 namespace pup
 {
     cRider::cRider()
@@ -15,30 +14,36 @@ namespace pup
         myLocation.first = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
         myLocation.second = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
         myBusy = false;
-        // std::cout << " rider " << myLocation.first <<","<< myLocation.second << " ";
+        //std::cout << " rider " << text();
     }
 
-    cRiderPool::cRiderPool()
-    : myQuadTree( 0 )
+    std::string cRider::text()
     {
+        std::stringstream ss;
+        ss << myLocation.first << "," << myLocation.second << " ";
+        return ss.str();
+    }
 
+    cRiderPool::cRiderPool(sConfig &config)
+        : myConfig(config), myQuadTree(0)
+    {
     }
 
     void cRiderPool::simulate()
     {
         // construct riders at random locations
         myRiders.clear();
-        myRiders.resize(theZone.myConfig.RiderCount);
+        myRiders.resize(myConfig.RiderCount);
         quadTreeBuild();
     }
 
     void cRiderPool::quadTreeBuild()
     {
-        float dim2 = theZone.myConfig.ZoneDimKm / 2.0;
+        float dim2 = myConfig.ZoneDimKm / 2.0;
 
-        if( myQuadTree )
+        if (myQuadTree)
             delete myQuadTree;
-        myQuadTree = new quad::cCell(quad::cPoint(dim2, dim2), dim2);
+        myQuadTree = new quad::cCell(quad::cPoint(dim2, dim2), myConfig.ZoneDimKm);
 
         int index = 0;
         for (auto &r : myRiders)
@@ -60,10 +65,17 @@ namespace pup
             auto rest = S.restaurantLocation();
             quad::cCell close(
                 quad::cPoint(rest.first, rest.second),
-                theZone.myConfig.CloseRiderDistanceKm);
+                myConfig.CloseRiderDistanceKm);
             auto riders = myQuadTree->find(close);
 
-            if( ! riders.size() ) {
+            // std::cout << "acceptable " << riders.size() 
+            //     <<" " << myConfig.CloseRiderDistanceKm << "\n";
+            // for( auto& rrr : myRiders )
+            //     std::cout << rrr.text() << " ";
+            // std::cout << "\n";
+
+            if (!riders.size())
+            {
                 // no acceptable rider for this stack, all too far away
                 S.myRider = -1;
                 continue;
@@ -86,12 +98,12 @@ namespace pup
                     d = manhatten;
                     allocated = rider;
 
-                    // std::cout << "so far " <<  allocated->userData 
+                    // std::cout << "so far " <<  allocated->userData
                     //     << " " << myRiders[allocated->userData].myBusy
                     //     << "\n";
                 }
             }
-            if( ! allocated )
+            if (!allocated)
             {
                 // no acceptable rider for this stack, all busy
                 S.myRider = -1;
@@ -103,4 +115,3 @@ namespace pup
         }
     }
 }
-

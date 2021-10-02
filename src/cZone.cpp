@@ -13,6 +13,7 @@ namespace pup
 
 
     cZone::cZone()
+    : myRiders( myConfig )
     {
         raven::set::cRunWatch::Start();
 
@@ -53,7 +54,7 @@ namespace pup
         myConfig.PickupWindowMins = 5;   // pickup window time
         myConfig.MaxPrepTimeMins = 15;   // maximum order preparation time
         myConfig.ZoneDimKm = 25;         // zone dimension
-        myConfig.CloseRiderDistanceKm = 20;
+        myConfig.CloseRiderDistanceKm = 10;
 
         myConfig.OrdersPerGroupTime =
             myConfig.GroupTimeMins * myConfig.OrdersPerHour / 60;
@@ -63,7 +64,7 @@ namespace pup
         std::cout
             << "Orders per hour                  " << myConfig.OrdersPerHour
             << "\nOrder collection time mins     " << myConfig.GroupTimeMins
-            << "\nRestaurants                    " << myRestaurants.size()
+            << "\nRestaurants                    " << myConfig.RestaurantCount
             << "\nPickup window mins             " << myConfig.PickupWindowMins
             << "\nMaximum order preparation mins " << myConfig.MaxPrepTimeMins
             << "\nMaximum distance of rider Km   " << myConfig.CloseRiderDistanceKm << "\n";
@@ -122,21 +123,23 @@ namespace pup
     {
         raven::set::cRunWatch aWatcher("\tStack orders");
 
+        myStacks.clear();
+
         int stackCount = 0;
 
         // sort
-        theZone.Sort();
+        Sort();
 
         // loop until all orders picked up
         while (1)
         {
             // resteraunt with earliest ready order
-            int nextRest = theZone.FindRestFirstNextPickup();
+            int nextRest = FindRestFirstNextPickup();
             if (nextRest == -1)
                 break; // all orders picked up
 
             // pickup some orders from resteraunt
-            theZone.myStacks.push_back(PickupOrders(nextRest));
+            myStacks.push_back(PickupOrders(nextRest));
 
             stackCount++;
         }
@@ -149,24 +152,24 @@ namespace pup
     {
         pup::cStack S;
         int orderIndex;
-        for (orderIndex = 0; orderIndex < theZone.myOrders.size(); orderIndex++)
+        for (orderIndex = 0; orderIndex < myOrders.size(); orderIndex++)
         {
             if (
-                theZone.myOrders[orderIndex].myRest == rest &&
-                theZone.myOrders[orderIndex].myWaiting)
+                myOrders[orderIndex].myRest == rest &&
+                myOrders[orderIndex].myWaiting)
                 break;
         }
-        if (orderIndex == theZone.myOrders.size())
+        if (orderIndex == myOrders.size())
             return S; // all orders picked up
 
-        for (; orderIndex < theZone.myOrders.size(); orderIndex++)
+        for (; orderIndex < myOrders.size(); orderIndex++)
         {
-            if (theZone.myOrders[orderIndex].myTime > theZone.myConfig.PickupWindowSecs)
+            if (myOrders[orderIndex].myTime > myConfig.PickupWindowSecs)
                 break;
-            if (theZone.myOrders[orderIndex].myRest != rest)
+            if (myOrders[orderIndex].myRest != rest)
                 break;
-            S.myOrder.push_back(theZone.myOrders[orderIndex]);
-            theZone.myOrders[orderIndex].myWaiting = false;
+            S.myOrder.push_back(myOrders[orderIndex]);
+            myOrders[orderIndex].myWaiting = false;
         }
 
         // std::cout << "Picked up " << v.size() << " orders "
@@ -193,7 +196,7 @@ namespace pup
 
     void cZone::Report()
     {
-        std::cout << theZone.stackCount() << " order stacks created\n";
+        std::cout << stackCount() << " order stacks created\n";
 
         // detailed report of first 5 order stacks
         int count = 0;
