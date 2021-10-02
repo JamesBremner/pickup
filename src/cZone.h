@@ -35,8 +35,10 @@ namespace pup
         // assign reiders to order stacks
         void assignRiders();
 
+        void Report();
+
         std::string stackText( int stackIndex );
-        
+
         int stackCount()
         {
             return myStacks.size();

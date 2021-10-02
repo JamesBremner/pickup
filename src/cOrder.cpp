@@ -14,9 +14,18 @@ namespace pup
     cStack::restaurantLocation()
     {
         std::pair<float, float> location;
-        if (myOrder.size() && theZone.myRestaurants.size() )
+        if (myOrder.size() && theZone.myRestaurants.size())
             location = theZone.myRestaurants[myOrder[0].myRest].myLocation;
         return location;
+    }
+
+    cOrder::cOrder()
+    {
+        myTime = rand() % theZone.myConfig.MaxPrepTimeMins;
+        myRest = rand() % theZone.myConfig.RestaurantCount;
+        myWaiting = true;
+        myDelivery.first = (rand() % 250) / 100.0;
+        myDelivery.second = (rand() % 250) / 100.0;
     }
 
     std::vector<std::pair<float, float>>

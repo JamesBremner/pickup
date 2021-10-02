@@ -10,17 +10,12 @@ namespace pup
         myLocation.second = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
         //std::cout << " rest " << myLocation.first <<","<< myLocation.second << " ";
     }
-    cOrder::cOrder()
-    {
-        myTime = rand() % theZone.myConfig.MaxPrepTimeMins;
-        myRest = rand() % theZone.myConfig.RestaurantCount;
-        myWaiting = true;
-        myDelivery.first = (rand() % 250) / 100.0;
-        myDelivery.second = (rand() % 250) / 100.0;
-    }
+
 
     cZone::cZone()
     {
+        raven::set::cRunWatch::Start();
+
         InitConfig();
 
         /// Simulate orders generated in one collection time
@@ -55,7 +50,7 @@ namespace pup
             << "\nRestaurants                    " << myRestaurants.size()
             << "\nPickup window mins             " << myConfig.PickupWindowMins
             << "\nMaximum order preparation mins " << myConfig.MaxPrepTimeMins
-            << "\nMaximum distance of rider Km   " << myConfig.CloseRiderDistanceKm            << "\n";
+            << "\nMaximum distance of rider Km   " << myConfig.CloseRiderDistanceKm << "\n";
     }
     void cZone::Sort()
     {
@@ -109,7 +104,7 @@ namespace pup
     }
     int cZone::orderStack()
     {
-        raven::set::cRunWatch aWatcher("stacking orders");
+        raven::set::cRunWatch aWatcher("\tStack orders");
 
         int stackCount = 0;
 
@@ -180,35 +175,48 @@ namespace pup
         myRiders->assign();
     }
 
-    std::string cZone::stackText(int stackIndex)
+    void cZone::Report()
     {
-        std::stringstream ss;
+        std::cout << theZone.stackCount() << " order stacks created\n";
+
         for (int stackIndex = 0; stackIndex < 5; stackIndex++)
         {
             if (0 > stackIndex || stackIndex >= myStacks.size())
                 break;
-
-            auto rest = myStacks[stackIndex].restaurantLocation();
-            int riderIndex = myStacks[stackIndex].myRider;
-            ss << "\nRestaurant at " << rest.first << " " << rest.second << "\n";
-            if(  riderIndex == -1 ) {
-                ss << "No rider assigned\n";
-                continue;
-            }
-
-            ss << "Rider # " << riderIndex 
-                << " at " << myRiders->location( riderIndex ).first
-                << "," << myRiders->location( riderIndex ).second
-                << " delivers to ";
-            for (auto &o : myStacks[stackIndex].myOrder)
-            {
-                ss
-                    << "( " << rest.first + o.myDelivery.first
-                    << "," << rest.second + o.myDelivery.second
-                    << " ) ";
-            }
-            ss << "\n";
+            std::cout << stackText( stackIndex);
         }
+
+        std::cout << "\n"
+                  << theZone.stackText(1) << "\n";
+
+        raven::set::cRunWatch::Report();
+    }
+
+    std::string cZone::stackText(int stackIndex)
+    {
+        std::stringstream ss;
+
+        auto rest = myStacks[stackIndex].restaurantLocation();
+        int riderIndex = myStacks[stackIndex].myRider;
+        ss << "\nRestaurant at " << rest.first << " " << rest.second << "\n";
+        if (riderIndex == -1)
+        {
+            ss << "No rider assigned\n";
+            return ss.str();;
+        }
+
+        ss << "Rider # " << riderIndex
+           << " at " << myRiders->location(riderIndex).first
+           << "," << myRiders->location(riderIndex).second
+           << " delivers to ";
+        for (auto &o : myStacks[stackIndex].myOrder)
+        {
+            ss
+                << "( " << rest.first + o.myDelivery.first
+                << "," << rest.second + o.myDelivery.second
+                << " ) ";
+        }
+        ss << "\n";
 
         return ss.str();
     }

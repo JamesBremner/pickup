@@ -29,8 +29,6 @@ main()
 {
     std::cout << "Pickup\n";
 
-    raven::set::cRunWatch::Start();
-
     // stack orders
     theZone.orderStack();
 
@@ -40,9 +38,5 @@ main()
     // assign riders
     theZone.assignRiders();
 
-    std::cout << theZone.stackCount() << " order stacks created\n";
-
-    std::cout << "\n" << theZone.stackText(1) << "\n";
-
-    raven::set::cRunWatch::Report();
+    theZone.Report();
 }
