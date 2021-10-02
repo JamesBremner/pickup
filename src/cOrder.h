@@ -34,6 +34,7 @@ class cStack
 {
     public:
     std::vector< cOrder > myOrder;
+    int myRider;                        // index of assigned rider
 
     std::pair<float,float>
     restaurantLocation();
@@ -42,8 +43,6 @@ class cStack
     std::vector<std::pair<float,float> >
     deliveryLocations();
 
-    // allocate rider
-    void rider();
 };
 
 }

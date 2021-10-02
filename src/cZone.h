@@ -32,8 +32,11 @@ namespace pup
         // arrange stack delivery locations into optimized order
         void delivery();
 
+        // assign reiders to order stacks
         void assignRiders();
 
+        std::string stackText( int stackIndex );
+        
         int stackCount()
         {
             return myStacks.size();

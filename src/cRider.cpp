@@ -4,8 +4,9 @@
 #include <math.h>
 #include "cRunWatch.h"
 #include "quadtree.h"
+
 #include "cZone.h"
-#include "cRider.h"
+
 
 namespace pup
 {
@@ -14,6 +15,7 @@ namespace pup
         myLocation.first = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
         myLocation.second = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
         myBusy = false;
+        // std::cout << " rider " << myLocation.first <<","<< myLocation.second << " ";
     }
 
     cRiderPool::cRiderPool()
@@ -47,10 +49,16 @@ namespace pup
                 theZone.myConfig.CloseRiderDistanceKm);
             auto riders = myQuadTree->find(close);
 
+            if( ! riders.size() ) {
+                // no acceptable rider for this stack, all too far away
+                S.myRider = -1;
+                continue;
+            }
+
             // find closest acceptable rider
             float d = 1.0e10;
-            quad::cPoint *allocated;
-            for (auto &rider : riders)
+            quad::cPoint *allocated = 0;
+            for (auto rider : riders)
             {
                 float manhatten =
                     fabs(rest.first - rider->x) + fabs(rest.second - rider->y);
@@ -63,9 +71,21 @@ namespace pup
 
                     d = manhatten;
                     allocated = rider;
+
+                    // std::cout << "so far " <<  allocated->userData 
+                    //     << " " << myRiders[allocated->userData].myBusy
+                    //     << "\n";
                 }
             }
+            if( ! allocated )
+            {
+                // no acceptable rider for this stack, all busy
+                S.myRider = -1;
+                continue;
+            }
+            S.myRider = allocated->userData;
             myRiders[allocated->userData].myBusy = true;
+            //std::cout << "allocated rider " << allocated->userData << "\n";
         }
     }
 }

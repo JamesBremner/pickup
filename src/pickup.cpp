@@ -42,5 +42,7 @@ main()
 
     std::cout << theZone.stackCount() << " order stacks created\n";
 
+    std::cout << "\n" << theZone.stackText(1) << "\n";
+
     raven::set::cRunWatch::Report();
 }

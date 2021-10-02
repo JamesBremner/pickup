@@ -8,6 +8,7 @@ namespace pup
     {
         myLocation.first = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
         myLocation.second = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
+        //std::cout << " rest " << myLocation.first <<","<< myLocation.second << " ";
     }
     cOrder::cOrder()
     {
@@ -37,7 +38,7 @@ namespace pup
         myConfig.PickupWindowMins = 5;   // pickup window time
         myConfig.MaxPrepTimeMins = 15;   // maximum order preparation time
         myConfig.ZoneDimKm = 25;         // zone dimension
-        myConfig.CloseRiderDistanceKm = 0.33;
+        myConfig.CloseRiderDistanceKm = 20;
 
         myConfig.OrdersPerGroupTime =
             myConfig.GroupTimeMins * myConfig.OrdersPerHour / 60;
@@ -54,7 +55,7 @@ namespace pup
             << "\nRestaurants                    " << myRestaurants.size()
             << "\nPickup window mins             " << myConfig.PickupWindowMins
             << "\nMaximum order preparation mins " << myConfig.MaxPrepTimeMins
-            << "\n";
+            << "\nMaximum distance of rider Km   " << myConfig.CloseRiderDistanceKm            << "\n";
     }
     void cZone::Sort()
     {
@@ -177,6 +178,39 @@ namespace pup
     void cZone::assignRiders()
     {
         myRiders->assign();
+    }
+
+    std::string cZone::stackText(int stackIndex)
+    {
+        std::stringstream ss;
+        for (int stackIndex = 0; stackIndex < 5; stackIndex++)
+        {
+            if (0 > stackIndex || stackIndex >= myStacks.size())
+                break;
+
+            auto rest = myStacks[stackIndex].restaurantLocation();
+            int riderIndex = myStacks[stackIndex].myRider;
+            ss << "\nRestaurant at " << rest.first << " " << rest.second << "\n";
+            if(  riderIndex == -1 ) {
+                ss << "No rider assigned\n";
+                continue;
+            }
+
+            ss << "Rider # " << riderIndex 
+                << " at " << myRiders->location( riderIndex ).first
+                << "," << myRiders->location( riderIndex ).second
+                << " delivers to ";
+            for (auto &o : myStacks[stackIndex].myOrder)
+            {
+                ss
+                    << "( " << rest.first + o.myDelivery.first
+                    << "," << rest.second + o.myDelivery.second
+                    << " ) ";
+            }
+            ss << "\n";
+        }
+
+        return ss.str();
     }
 
 }

@@ -25,6 +25,13 @@ namespace pup
         // assign riders to pickup orders
         void assign();
 
+        std::pair<float, float> location( int index )
+        {
+            if( 0 > index || index >= myRiders.size() )
+                return std::pair<float,float>( -1e6,-1e6 );
+            return myRiders[ index ].myLocation;
+        }
+
     private:
         std::vector<pup::cRider> myRiders; // the riders
         quad::cCell *myQuadTree;           // the riders starting locations in a quad tree
