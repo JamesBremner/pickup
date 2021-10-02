@@ -16,7 +16,6 @@
 
  */
 
-
 #include <stdlib.h>
 #include <vector>
 #include "cRunWatch.h"
@@ -25,9 +24,20 @@
 
 pup::cZone theZone;
 
-main()
+main(int argc, char *argv[])
 {
     std::cout << "Pickup\n";
+
+    if (argc == 2)
+    {
+        // simulate restaurants, drivers and orders for a zone
+        theZone.simulate();
+    }
+    else
+    {
+        // get restaurants, drivers and orders for a zone from external source
+        theZone.populate();
+    }
 
     // stack orders
     theZone.orderStack();

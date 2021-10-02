@@ -19,11 +19,25 @@ namespace pup
     }
 
     cRiderPool::cRiderPool()
+    : myQuadTree( 0 )
+    {
+
+    }
+
+    void cRiderPool::simulate()
     {
         // construct riders at random locations
+        myRiders.clear();
         myRiders.resize(theZone.myConfig.RiderCount);
+        quadTreeBuild();
+    }
 
+    void cRiderPool::quadTreeBuild()
+    {
         float dim2 = theZone.myConfig.ZoneDimKm / 2.0;
+
+        if( myQuadTree )
+            delete myQuadTree;
         myQuadTree = new quad::cCell(quad::cPoint(dim2, dim2), dim2);
 
         int index = 0;

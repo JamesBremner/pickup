@@ -71,35 +71,30 @@ namespace pup
         return vOpt;
     }
 
-    // void cStack::rider()
-    // {
-    //     raven::set::cRunWatch aWatcher("Allocate rider to stack");
+    std::string cStack::text()
+    {
+        std::stringstream ss;
 
-    //     // find riders acceptably close to restaurant
-    //     auto rest = restaurantLocation();
-    //     quad::cCell close(
-    //         quad::cPoint(rest.first, rest.second),
-    //         theConfig.CloseRiderDistanceKm);
-    //     auto riders = theQuadTree->find(close);
+        auto rest = restaurantLocation();
+        ss << "\nRestaurant at " << rest.first << " " << rest.second << "\n";
+        if (myRider == -1)
+        {
+            ss << "No rider assigned\n";
+            return ss.str();;
+        }
 
-    //     // find closest acceptable rider
-    //     float d = 1.0e10;
-    //     quad::cPoint * allocated;
-    //     for (auto &rider : riders)
-    //     {
-    //         float manhatten =
-    //             fabs(rest.first - rider->x) + fabs(rest.second - rider->y);
-    //         if (manhatten < d)
-    //         {
-    //             // check that rider is not busy with other orders
-    //             if( theRiders[ rider->userData ].myBusy )
-    //                 continue;
-    //             // TODO:  add any other constraint filter here
+        ss << "Rider # " << myRider
+           << " at " << theZone.myRiders.location(myRider).first
+           << "," << theZone.myRiders.location(myRider).second
+           << " delivers to ";
+        for (auto &o : myOrder)
+        {
+            ss
+                << "( " << rest.first + o.myDelivery.first
+                << "," << rest.second + o.myDelivery.second
+                << " ) ";
+        }
 
-    //             d = manhatten;
-    //             allocated = rider;
-    //         }
-    //     }
-    //     theRiders[ allocated->userData ].myBusy = true;
-    // }
+        return ss.str();
+    }
 }

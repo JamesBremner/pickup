@@ -22,9 +22,17 @@ namespace pup
         // CTOR
         cRiderPool();
 
+        void simulate();
+
         // assign riders to pickup orders
         void assign();
 
+        /** location of a rider
+         * @param[in] index of rider
+         * @return location, pair of floats ( x, y )
+         * 
+         * If index does not exist, returns ( -1e6,-1e6 )
+         */
         std::pair<float, float> location( int index )
         {
             if( 0 > index || index >= myRiders.size() )
@@ -35,6 +43,8 @@ namespace pup
     private:
         std::vector<pup::cRider> myRiders; // the riders
         quad::cCell *myQuadTree;           // the riders starting locations in a quad tree
+
+        void quadTreeBuild();
     };
 }
 

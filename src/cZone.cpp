@@ -16,7 +16,24 @@ namespace pup
     {
         raven::set::cRunWatch::Start();
 
+    }
+
+    void cZone::populate()
+    {
+        std::cout << 
+        "\nExternal source of orders not available\n"
+        "Do you want to simulate a restaurant zone?\n"
+        "Type:  pickup -sim\n\n";
+        exit(1);
+    }
+
+    void cZone::simulate()
+    {
+        std::cout << "Simulating\n";
+
         InitConfig();
+
+        myRestaurants.resize(myConfig.RestaurantCount);
 
         /// Simulate orders generated in one collection time
         myOrders.clear();
@@ -24,7 +41,10 @@ namespace pup
         {
             myOrders.push_back(pup::cOrder());
         }
+
+        myRiders.simulate();
     }
+
     void cZone::InitConfig()
     {
         myConfig.OrdersPerHour = 20000;  // incoming order per hour
@@ -39,10 +59,6 @@ namespace pup
             myConfig.GroupTimeMins * myConfig.OrdersPerHour / 60;
         myConfig.PickupWindowSecs = myConfig.PickupWindowMins * 60;
         myConfig.RiderCount = myConfig.RestaurantCount; // one rider per restaurant
-
-        myRestaurants.resize(myConfig.RestaurantCount);
-
-        myRiders = new cRiderPool();
 
         std::cout
             << "Orders per hour                  " << myConfig.OrdersPerHour
@@ -172,53 +188,25 @@ namespace pup
 
     void cZone::assignRiders()
     {
-        myRiders->assign();
+        myRiders.assign();
     }
 
     void cZone::Report()
     {
         std::cout << theZone.stackCount() << " order stacks created\n";
 
-        for (int stackIndex = 0; stackIndex < 5; stackIndex++)
+        // detailed report of first 5 order stacks
+        int count = 0;
+        for ( auto& stack : myStacks )
         {
-            if (0 > stackIndex || stackIndex >= myStacks.size())
+            std::cout << stack.text() << "\n";
+            count++;
+            if( count >= 5 )
                 break;
-            std::cout << stackText( stackIndex);
         }
 
-        std::cout << "\n"
-                  << theZone.stackText(1) << "\n";
-
+        // timing report
         raven::set::cRunWatch::Report();
-    }
-
-    std::string cZone::stackText(int stackIndex)
-    {
-        std::stringstream ss;
-
-        auto rest = myStacks[stackIndex].restaurantLocation();
-        int riderIndex = myStacks[stackIndex].myRider;
-        ss << "\nRestaurant at " << rest.first << " " << rest.second << "\n";
-        if (riderIndex == -1)
-        {
-            ss << "No rider assigned\n";
-            return ss.str();;
-        }
-
-        ss << "Rider # " << riderIndex
-           << " at " << myRiders->location(riderIndex).first
-           << "," << myRiders->location(riderIndex).second
-           << " delivers to ";
-        for (auto &o : myStacks[stackIndex].myOrder)
-        {
-            ss
-                << "( " << rest.first + o.myDelivery.first
-                << "," << rest.second + o.myDelivery.second
-                << " ) ";
-        }
-        ss << "\n";
-
-        return ss.str();
     }
 
 }

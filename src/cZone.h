@@ -19,9 +19,15 @@ namespace pup
         std::vector<cOrder> myOrders;
         std::vector<pup::cStack> myStacks;
         std::vector<cRestaurant> myRestaurants;
-        cRiderPool * myRiders;
+        cRiderPool myRiders;
 
         cZone();
+
+        // populate zone with restaurants, drivers and orders from an external source
+        void populate();
+
+        // simulate restaurants, drivers and orders for a zone
+        void simulate();
 
         // sort orders by restaurant and time
         void Sort();
@@ -36,8 +42,6 @@ namespace pup
         void assignRiders();
 
         void Report();
-
-        std::string stackText( int stackIndex );
 
         int stackCount()
         {
