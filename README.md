@@ -23,7 +23,7 @@
  To process orders provided by an external source ( e.g. database or server )
  
  ```
-n>pickup.exe
+>pickup
 Pickup
 
 External source of orders not available
