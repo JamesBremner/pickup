@@ -86,16 +86,17 @@ namespace pup
         quad::cPoint *allocated = 0;
         for (auto rider : riders)
         {
-            float manhatten =
-                fabs(rest.first - rider->x) + fabs(rest.second - rider->y);
-            if (manhatten < d)
+            float rd =cZone::distance( 
+                rest,
+                std::make_pair( rider->x, rider->y )  );
+            if (rd < d)
             {
                 // check that rider is not busy with other orders
                 if (myRiders[rider->userData].myBusy)
                     continue;
                 // TODO:  add any other constraint filter here
 
-                d = manhatten;
+                d = rd;
                 allocated = rider;
 
                 // std::cout << "so far " <<  allocated->userData

@@ -38,9 +38,10 @@ namespace pup
         // arrange stack delivery locations into optimized order
         void delivery();
 
-        // assign reiders to order stacks
+        // assign riders to order stacks
         void assignRiders();
 
+        // print report on standard output
         void Report();
 
         int stackCount()
@@ -48,14 +49,44 @@ namespace pup
             return myStacks.size();
         }
 
+        enum eDistMethod
+        {
+            manhatten,
+            manhatten_haversine,
+        };
+
+        /** calculate distance between two points
+         * @param[in] A a point
+         * @param[in] B a point
+         * @param[in] m calculation method, defaults to manhatten
+         * @return the calculated distance
+         * 
+         * Fo discussion https://github.com/JamesBremner/pickup/issues/2
+         * 
+         */
+        static float distance(
+            const std::pair<float, float> &l1,
+            const std::pair<float, float> &l2,
+            eDistMethod m = eDistMethod::manhatten)
+        {
+            return distance(
+                l1.first, l2.second,
+                l1.second, l2.second,
+                m);
+        }
+        static float distance(
+            int x1, int y1,
+            int x2, int y2,
+            eDistMethod m = eDistMethod::manhatten);
+
     private:
         void InitConfig();
 
         /// stack orders for a resteraunt
         cStack
-        PickupOrders(cRestaurant * rest);
+        PickupOrders(cRestaurant *rest);
 
         /// find restaurant with earlier ready order
-        cRestaurant * FindRestFirstNextPickup();
+        cRestaurant *FindRestFirstNextPickup();
     };
 }

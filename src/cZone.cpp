@@ -203,7 +203,7 @@ namespace pup
         int count = 0;
         for (auto &stack : myStacks)
         {
-            std::cout << stack.text( this ) << "\n";
+            std::cout << stack.text(this) << "\n";
             count++;
             if (count >= 5)
                 break;
@@ -211,6 +211,26 @@ namespace pup
 
         // timing report
         raven::set::cRunWatch::Report();
+    }
+
+    float cZone::distance(
+        int x1, int y1,
+        int x2, int y2,
+        eDistMethod m)
+    {
+        switch (m)
+        {
+        case eDistMethod::manhatten:
+            return std::fabs(x1 - x2) + std::fabs(y1 - y2);
+
+        case eDistMethod::manhatten_haversine:
+            // TODO Implement manhatten_haversine
+            throw std::runtime_error("manhatten_haversine distance NYI");
+
+        default:
+            std::cout << m << "\n";
+            throw std::runtime_error("Unrecognized distance calculation method");
+        }
     }
 
 }

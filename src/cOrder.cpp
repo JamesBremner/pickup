@@ -10,17 +10,17 @@
 
 namespace pup
 {
-    cRestaurant * cStack::restaurant()
+    cRestaurant *cStack::restaurant()
     {
         if (!myOrder.size())
             throw std::runtime_error("cStack::restaurantIndex stack has no orders");
         return myOrder[0].myRest;
     }
 
-    cOrder::cOrder( cZone* zone )
+    cOrder::cOrder(cZone *zone)
     {
         myTime = rand() % zone->myConfig.MaxPrepTimeMins;
-        myRest = &zone->myRestaurants[ rand() % zone->myConfig.RestaurantCount ];
+        myRest = &zone->myRestaurants[rand() % zone->myConfig.RestaurantCount];
         myWaiting = true;
         myDelivery.first = (rand() % 250) / 100.0;
         myDelivery.second = (rand() % 250) / 100.0;
@@ -48,13 +48,11 @@ namespace pup
                 if (c1 == c2)
                     continue;
 
-                // manhatten distances
-                float d =
-                    std::fabs(vl[c1].first - vl[c2].first) + std::fabs(vl[c1].second - vl[c2].second);
                 finder.addLink(
                     std::to_string(c2),
                     std::to_string(c1),
-                    d);
+                    cZone::distance(
+                        vl[c1], vl[c2]));
             }
         }
 
@@ -69,11 +67,11 @@ namespace pup
         return vOpt;
     }
 
-    std::string cStack::text( cZone* zone )
+    std::string cStack::text(cZone *zone)
     {
         std::stringstream ss;
 
-        auto& restloc = restaurant()->myLocation;
+        auto &restloc = restaurant()->myLocation;
         ss << "\nRestaurant at " << restloc.first << " " << restloc.second << "\n";
         if (myRider == -1)
         {
