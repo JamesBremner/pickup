@@ -4,27 +4,24 @@
 #include "cZone.h"
 namespace pup
 {
-    cRestaurant::cRestaurant()
+    cRestaurant::cRestaurant(int dim)
     {
-        myLocation.first = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
-        myLocation.second = (rand() % theZone.myConfig.ZoneDimKm * 100) / 100.0;
+        myLocation.first = (rand() % (dim * 100)) / 100.0;
+        myLocation.second = (rand() % (dim * 100)) / 100.0;
         //std::cout << " rest " << myLocation.first <<","<< myLocation.second << " ";
     }
 
-
     cZone::cZone()
-    : myRiders( myConfig )
+        : myRiders(myConfig)
     {
         raven::set::cRunWatch::Start();
-
     }
 
     void cZone::populate()
     {
-        std::cout << 
-        "\nExternal source of orders not available\n"
-        "Do you want to simulate a restaurant zone?\n"
-        "Type:  pickup -sim\n\n";
+        std::cout << "\nExternal source of orders not available\n"
+                     "Do you want to simulate a restaurant zone?\n"
+                     "Type:  pickup -sim\n\n";
         exit(1);
     }
 
@@ -34,13 +31,16 @@ namespace pup
 
         InitConfig();
 
-        myRestaurants.resize(myConfig.RestaurantCount);
+        myRestaurants.clear();
+        for (int k = 0; k < myConfig.RestaurantCount; k++)
+            myRestaurants.push_back(
+                cRestaurant(myConfig.ZoneDimKm));
 
         /// Simulate orders generated in one collection time
         myOrders.clear();
         for (int o; o < myConfig.OrdersPerGroupTime; o++)
         {
-            myOrders.push_back(pup::cOrder());
+            myOrders.push_back(pup::cOrder(this));
         }
 
         myRiders.simulate();
@@ -88,17 +88,15 @@ namespace pup
             });
     }
     /// find resteraunt with earlier ready order
-    int cZone::FindRestFirstNextPickup()
+    cRestaurant *cZone::FindRestFirstNextPickup()
     {
-        int nextRest = -1;
+        cRestaurant *nextRest = 0;
         int nextPickup = INT32_MAX;
         for (int rest = 0; rest < myConfig.RestaurantCount; rest++)
         {
             for (auto &order : myOrders)
             {
-                if (order.myRest < rest)
-                    continue;
-                if (order.myRest != rest)
+                if (order.myRest != &myRestaurants[rest])
                     continue;
                 if (!order.myWaiting)
                     continue;
@@ -134,8 +132,8 @@ namespace pup
         while (1)
         {
             // resteraunt with earliest ready order
-            int nextRest = FindRestFirstNextPickup();
-            if (nextRest == -1)
+            auto nextRest = FindRestFirstNextPickup();
+            if (!nextRest)
                 break; // all orders picked up
 
             // pickup some orders from resteraunt
@@ -148,7 +146,7 @@ namespace pup
     }
 
     pup::cStack
-    cZone::PickupOrders(int rest)
+    cZone::PickupOrders(cRestaurant *rest)
     {
         pup::cStack S;
         int orderIndex;
@@ -191,7 +189,10 @@ namespace pup
 
     void cZone::assignRiders()
     {
-        myRiders.assign();
+        for (auto &S : myStacks)
+        {
+            myRiders.assign(S);
+        }
     }
 
     void cZone::Report()
@@ -200,11 +201,11 @@ namespace pup
 
         // detailed report of first 5 order stacks
         int count = 0;
-        for ( auto& stack : myStacks )
+        for (auto &stack : myStacks)
         {
-            std::cout << stack.text() << "\n";
+            std::cout << stack.text( this ) << "\n";
             count++;
-            if( count >= 5 )
+            if (count >= 5)
                 break;
         }
 

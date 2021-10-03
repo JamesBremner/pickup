@@ -10,19 +10,17 @@
 
 namespace pup
 {
-    std::pair<float, float>
-    cStack::restaurantLocation()
+    cRestaurant * cStack::restaurant()
     {
-        std::pair<float, float> location;
-        if (myOrder.size() && theZone.myRestaurants.size())
-            location = theZone.myRestaurants[myOrder[0].myRest].myLocation;
-        return location;
+        if (!myOrder.size())
+            throw std::runtime_error("cStack::restaurantIndex stack has no orders");
+        return myOrder[0].myRest;
     }
 
-    cOrder::cOrder()
+    cOrder::cOrder( cZone* zone )
     {
-        myTime = rand() % theZone.myConfig.MaxPrepTimeMins;
-        myRest = rand() % theZone.myConfig.RestaurantCount;
+        myTime = rand() % zone->myConfig.MaxPrepTimeMins;
+        myRest = &zone->myRestaurants[ rand() % zone->myConfig.RestaurantCount ];
         myWaiting = true;
         myDelivery.first = (rand() % 250) / 100.0;
         myDelivery.second = (rand() % 250) / 100.0;
@@ -71,27 +69,28 @@ namespace pup
         return vOpt;
     }
 
-    std::string cStack::text()
+    std::string cStack::text( cZone* zone )
     {
         std::stringstream ss;
 
-        auto rest = restaurantLocation();
-        ss << "\nRestaurant at " << rest.first << " " << rest.second << "\n";
+        auto& restloc = restaurant()->myLocation;
+        ss << "\nRestaurant at " << restloc.first << " " << restloc.second << "\n";
         if (myRider == -1)
         {
             ss << "No rider assigned\n";
-            return ss.str();;
+            return ss.str();
+            ;
         }
 
         ss << "Rider # " << myRider
-           << " at " << theZone.myRiders.location(myRider).first
-           << "," << theZone.myRiders.location(myRider).second
+           << " at " << zone->myRiders.location(myRider).first
+           << "," << zone->myRiders.location(myRider).second
            << " delivers to ";
         for (auto &o : myOrder)
         {
             ss
-                << "( " << rest.first + o.myDelivery.first
-                << "," << rest.second + o.myDelivery.second
+                << "( " << restloc.first + o.myDelivery.first
+                << "," << restloc.second + o.myDelivery.second
                 << " ) ";
         }
 

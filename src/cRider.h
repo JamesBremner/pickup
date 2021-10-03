@@ -12,7 +12,7 @@ namespace pup
         bool myBusy;                        // true if assigned to an order stack
 
         /// Construct rider at random starting location
-        cRider();
+        cRider( const sConfig& config );
 
         std::string text();
     };
@@ -26,8 +26,8 @@ namespace pup
 
         void simulate();
 
-        // assign riders to pickup orders
-        void assign();
+        // assign riders to pickup order stack
+        void assign( cStack& S );
 
         /** location of a rider
          * @param[in] index of rider

@@ -1,27 +1,35 @@
 namespace pup
 {
 
+    class cZone;
+
     class cRestaurant
     {
     public:
         std::pair<float, float> myLocation;
 
-        cRestaurant();
+        /** Construct restaurant at random location
+         * @param[in] dim maximum location value
+         * 
+         * The restaurant will be placed somewhere in the rectangle
+         * top left 0, 0  bottom right dim, dim
+         */
+        cRestaurant( int dim );
     };
 
     ///  An order placed at a restaurant to be delivered to a location
     class cOrder
     {
     public:
-        int myTime;     // time, after start of group, when order will be ready for pickup
-        int myRest;     // index of restaurant where order was placed
-        bool myWaiting; // true if order has not yet been picked up
+        int myTime;             // time, after start of group, when order will be ready for pickup
+        cRestaurant * myRest;   // index of restaurant where order was placed
+        bool myWaiting;         // true if order has not yet been picked up
 
         // location order to be delivered to.  Km relative to restaurant location
         std::pair<float, float> myDelivery;
 
         /// Construct with random values
-        cOrder();
+        cOrder( cZone* zone );
 
         friend std::ostream &operator<<(std::ostream &os, cOrder o)
         {
@@ -37,15 +45,15 @@ namespace pup
         std::vector<cOrder> myOrder;
         int myRider; // index of assigned rider
 
-        std::pair<float, float>
-        restaurantLocation();
+        /// pointer to restaurant where order placed
+        cRestaurant * restaurant();
 
         /// delivery locations in optimized order
         std::vector<std::pair<float, float>>
         deliveryLocations();
 
         // detailed report
-        std::string text();
+        std::string text( cZone* zone);
     };
 
 }

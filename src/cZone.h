@@ -53,10 +53,9 @@ namespace pup
 
         /// stack orders for a resteraunt
         cStack
-        PickupOrders(int rest);
+        PickupOrders(cRestaurant * rest);
 
         /// find restaurant with earlier ready order
-        int FindRestFirstNextPickup();
+        cRestaurant * FindRestFirstNextPickup();
     };
 }
-extern pup::cZone theZone;

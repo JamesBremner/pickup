@@ -28,3 +28,6 @@ test: $(TST)
 	g++ $(OPT) \
 	-o ../../bin/pickup.exe $^
 
+.PHONY: clean
+clean:
+	del /q .\obj

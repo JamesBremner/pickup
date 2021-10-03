@@ -22,6 +22,20 @@
                 "kind": "build",
                 "isDefault": true
             }
-        }
+        },
+        {
+			"label": "clean",
+			"command": "mingw32-make.exe",
+			"args": [
+				"clean"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"group": "build",
+			"problemMatcher": [
+				"$gcc"
+			]
+		}
     ]
 }

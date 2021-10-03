@@ -22,11 +22,11 @@
 
 #include "cZone.h"
 
-pup::cZone theZone;
-
 main(int argc, char *argv[])
 {
     std::cout << "Pickup\n";
+
+    pup::cZone theZone;
 
     if (argc == 2)
     {
