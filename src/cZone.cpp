@@ -78,23 +78,17 @@ namespace pup
             "CREATE TABLE IF NOT EXISTS config "
             " ( ZoneDimKm, PickupWindowSecs, CloseRiderDistanceKm );");
         db.Query("DELETE FROM config;");
-        sqlite3_stmt *stmt = 0;
-        const char *tail = 0;
-        int ret =
-            sqlite3_prepare_v2(
-                dbh,
-                "INSERT INTO config VALUES ( ?, ?, ? );",
-                -1,
-                &stmt,
-                &tail);
+        if (!db.Prepare(
+                "INSERT INTO config VALUES ( ?, ?, ? );"))
+            throw std::runtime_error(
+                std::string("cZone::configWrite DB error\n") + db.myError);
 
-        ret = sqlite3_bind_int(stmt, 1, myConfig.ZoneDimKm);
-        ret = sqlite3_bind_int(stmt, 2, myConfig.PickupWindowSecs);
-        ret = sqlite3_bind_double(stmt, 3, myConfig.CloseRiderDistanceKm);
-        ret = sqlite3_step(stmt);
-        ret = sqlite3_reset(stmt);
-        if (sqlite3_finalize(stmt))
-            throw std::runtime_error("DB rider write error");
+        db.Bind(1, myConfig.ZoneDimKm);
+        db.Bind(2, myConfig.PickupWindowSecs);
+        db.Bind(3, myConfig.CloseRiderDistanceKm);
+        db.step();
+        if (db.finalize())
+            throw std::runtime_error("DB config write error");
     }
 
     void cZone::configRead(raven::sqlite::cDB &db)
@@ -102,34 +96,29 @@ namespace pup
         auto dbh = db.getHandle();
         if (!dbh)
             throw std::runtime_error("DB not open");
+        if (!db.Prepare(
+                "SELECT * FROM config;"))
+            throw std::runtime_error(
+                std::string("cZone::configRead DB error\n") + db.myError);
 
-        sqlite3_stmt *stmt = 0;
-        const char *tail = 0;
-        int ret =
-            sqlite3_prepare_v2(
-                dbh,
-                "SELECT * FROM config;",
-                -1,
-                &stmt,
-                &tail);
-        if (sqlite3_step(stmt) != SQLITE_ROW)
+        if (db.step() != SQLITE_ROW)
             throw std::runtime_error("Canot read config from DB");
 
-        myConfig.ZoneDimKm = sqlite3_column_int(stmt, 0),
-        myConfig.PickupWindowSecs = sqlite3_column_int(stmt, 1),
-        myConfig.CloseRiderDistanceKm = sqlite3_column_double(stmt, 2);
+        myConfig.ZoneDimKm = db.ColumnInt( 0);
+        myConfig.PickupWindowSecs = db.ColumnInt( 1);
+        myConfig.CloseRiderDistanceKm = db.ColumnDouble( 2);
 
-        sqlite3_finalize(stmt);
+        db.finalize();
     }
 
     void cZone::InitConfig()
     {
         myConfig.OrdersPerHour = 20000;  // incoming order per hour
-        myConfig.GroupTimeMins = 5;    // order collection time
-        myConfig.RestaurantCount = 5000;  // number of restaurants
-        myConfig.PickupWindowMins = 5; // pickup window time
-        myConfig.MaxPrepTimeMins = 15; // maximum order preparation time
-        myConfig.ZoneDimKm = 25;       // zone dimension
+        myConfig.GroupTimeMins = 5;      // order collection time
+        myConfig.RestaurantCount = 5000; // number of restaurants
+        myConfig.PickupWindowMins = 5;   // pickup window time
+        myConfig.MaxPrepTimeMins = 15;   // maximum order preparation time
+        myConfig.ZoneDimKm = 25;         // zone dimension
         myConfig.CloseRiderDistanceKm = 10;
 
         myConfig.OrdersPerGroupTime =

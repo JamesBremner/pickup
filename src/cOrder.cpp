@@ -54,23 +54,16 @@ namespace pup
             " ( x, y );");
         db.Query("DELETE FROM restaurant;");
         db.Query("BEGIN TRANSACTION;");
-        sqlite3_stmt *stmt = 0;
-        const char *tail = 0;
-        int ret =
-            sqlite3_prepare_v2(
-                dbh,
-                "INSERT INTO restaurant VALUES ( ?, ? );",
-                -1,
-                &stmt,
-                &tail);
+        db.Prepare("INSERT INTO restaurant VALUES ( ?, ? );");
+
         for (auto &rest : myRestaurant)
         {
-            ret = sqlite3_bind_double(stmt, 1, rest.myLocation.first);
-            ret = sqlite3_bind_double(stmt, 2, rest.myLocation.second);
-            ret = sqlite3_step(stmt);
-            ret = sqlite3_reset(stmt);
+            db.Bind(1,rest.myLocation.first);
+            db.Bind(2,rest.myLocation.second);
+            db.step();
+            db.reset();
         }
-        if (sqlite3_finalize(stmt))
+        if (db.finalize())
             throw std::runtime_error("DB restaurant write error");
         db.Query("END TRANSACTION;");
     }
@@ -81,25 +74,16 @@ namespace pup
         auto dbh = db.getHandle();
         if (!dbh)
             throw std::runtime_error("DB not open");
-
-        sqlite3_stmt *stmt = 0;
-        const char *tail = 0;
-        int ret =
-            sqlite3_prepare_v2(
-                dbh,
-                "SELECT * FROM restaurant;",
-                -1,
-                &stmt,
-                &tail);
+        db.Prepare("SELECT * FROM restaurant;");
         // loop over rows returned
-        while (sqlite3_step(stmt) == SQLITE_ROW)
+        while (db.step() == SQLITE_ROW)
         {
             myRestaurant.push_back(
                 cRestaurant(
-                    sqlite3_column_double(stmt, 0),
-                    sqlite3_column_double(stmt, 1)));
+                    (float)db.ColumnDouble( 0 ),
+                    (float)db.ColumnDouble (1)));
         }
-        sqlite3_finalize(stmt);
+        db.finalize();
 
         std::cout << myRestaurant.size() << " restaurants loaded\n";
     }
@@ -113,26 +97,18 @@ namespace pup
             throw std::runtime_error("DB cannot create orderholder");
         db.Query("DELETE FROM orderholder;");
         db.Query("BEGIN TRANSACTION;");
-        sqlite3_stmt *stmt = 0;
-        const char *tail = 0;
-        int ret =
-            sqlite3_prepare_v2(
-                dbh,
-                "INSERT INTO orderholder VALUES ( ?, ?, ?, ? );",
-                -1,
-                &stmt,
-                &tail);
+        db.Prepare("INSERT INTO orderholder VALUES ( ?, ?, ?, ? );");
+
         for (auto &order : myOrder)
         {
-
-            ret = sqlite3_bind_int(stmt, 1, order.myTime);
-            ret = sqlite3_bind_int(stmt, 2, zone->myRestaurants.index( order.myRest ));
-            ret = sqlite3_bind_double(stmt, 3, order.myDelivery.first);
-            ret = sqlite3_bind_double(stmt, 4, order.myDelivery.second);
-            ret = sqlite3_step(stmt);
-            ret = sqlite3_reset(stmt);
+            db.Bind(1, order.myTime);
+            db.Bind( 2, zone->myRestaurants.index( order.myRest ));
+            db.Bind( 3, order.myDelivery.first);
+            db.Bind( 4, order.myDelivery.second);
+            db.step();
+            db.reset();
         }
-        ret = sqlite3_finalize(stmt);
+        db.finalize();
         db.Query("END TRANSACTION;");
     }
 
@@ -145,26 +121,18 @@ namespace pup
         if (!dbh)
             throw std::runtime_error("DB not open");
 
-        sqlite3_stmt *stmt = 0;
-        const char *tail = 0;
-        int ret =
-            sqlite3_prepare_v2(
-                dbh,
-                "SELECT * FROM orderholder;",
-                -1,
-                &stmt,
-                &tail);
+        db.Prepare("SELECT * FROM orderholder;");
         // loop over rows returned
-        while (sqlite3_step(stmt) == SQLITE_ROW)
+        while (db.step() == SQLITE_ROW)
         {
             myOrder.push_back(
                 cOrder(
-                    sqlite3_column_int( stmt, 0),
-                    zone->myRestaurants.pointer(sqlite3_column_int( stmt, 1)),
-                    sqlite3_column_double(stmt, 2),
-                    sqlite3_column_double(stmt, 3)));
+                    db.ColumnInt( 0),
+                    zone->myRestaurants.pointer(db.ColumnInt( 1)),
+                    db.ColumnDouble( 2),
+                    db.ColumnDouble( 3) ) );
         }
-        sqlite3_finalize(stmt);
+        db.finalize();
 
         std::cout << myOrder.size() << " orders loaded\n";
     }
