@@ -77,6 +77,7 @@ namespace pup
             "CREATE TABLE IF NOT EXISTS rider "
             " ( x, y );");
         db.Query("DELETE FROM rider;");
+        db.Query("BEGIN TRANSACTION;");
         sqlite3_stmt *stmt = 0;
         const char *tail = 0;
         int ret =
@@ -95,6 +96,7 @@ namespace pup
         }
         if (sqlite3_finalize(stmt))
             throw std::runtime_error("DB rider write error");
+        db.Query("END TRANSACTION;");
     }
     void cRiderPool::read(raven::sqlite::cDB &db)
     {

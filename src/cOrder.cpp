@@ -53,6 +53,7 @@ namespace pup
             "CREATE TABLE IF NOT EXISTS restaurant "
             " ( x, y );");
         db.Query("DELETE FROM restaurant;");
+        db.Query("BEGIN TRANSACTION;");
         sqlite3_stmt *stmt = 0;
         const char *tail = 0;
         int ret =
@@ -71,6 +72,7 @@ namespace pup
         }
         if (sqlite3_finalize(stmt))
             throw std::runtime_error("DB restaurant write error");
+        db.Query("END TRANSACTION;");
     }
     void cRestaurantHolder::read(raven::sqlite::cDB &db)
     {
@@ -110,6 +112,7 @@ namespace pup
                 "CREATE TABLE IF NOT EXISTS orderholder ( rdy, rst, x, y );"))
             throw std::runtime_error("DB cannot create orderholder");
         db.Query("DELETE FROM orderholder;");
+        db.Query("BEGIN TRANSACTION;");
         sqlite3_stmt *stmt = 0;
         const char *tail = 0;
         int ret =
@@ -130,6 +133,7 @@ namespace pup
             ret = sqlite3_reset(stmt);
         }
         ret = sqlite3_finalize(stmt);
+        db.Query("END TRANSACTION;");
     }
 
     void cOrderHolder::read(raven::sqlite::cDB &db,

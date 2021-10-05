@@ -64,12 +64,10 @@ namespace pup
         raven::set::cRunWatch aWatcher("\tWrite DB");
         std::filesystem::create_directories("C:/ProgramData/RavensPoint/Pickup");
         raven::sqlite::cDB db("C:/ProgramData/RavensPoint/Pickup/pickup.dat");
-        db.Query("BEGIN TRANSACTION;");
         myRestaurants.write(db);
         myOrders.write(db, this);
         myRiders.write(db);
         configWrite(db);
-        db.Query("END TANSACTION;");
     }
     void cZone::configWrite(raven::sqlite::cDB &db)
     {
