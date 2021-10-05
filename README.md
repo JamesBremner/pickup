@@ -51,13 +51,6 @@ Pickup
 5000 restaurants loaded
 1666 orders loaded
 5000 riders loaded
-Zone dimension Km                25
-Orders per hour                  15796144
-Order collection time mins     0
-Restaurants                    1301588614
-Pickup window mins             5214408
-Maximum order preparation mins 0
-Maximum distance of rider Km   10
 
 1407 order stacks created
 
