@@ -11,6 +11,8 @@ namespace pup
         std::pair<float, float> myLocation; // starting location
         bool myBusy;                        // true if assigned to an order stack
 
+        cRider( float x, float y );
+        
         /// Construct rider at random starting location
         cRider( const sConfig& config );
 
@@ -25,6 +27,9 @@ namespace pup
         cRiderPool( sConfig & myConfig );
 
         void simulate();
+
+        void write(raven::sqlite::cDB& db);
+        void read(raven::sqlite::cDB& db);
 
         // assign riders to pickup order stack
         void assign( cStack& S );

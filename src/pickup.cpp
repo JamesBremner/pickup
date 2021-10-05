@@ -32,21 +32,24 @@ main(int argc, char *argv[])
     {
         // simulate restaurants, drivers and orders for a zone
         theZone.simulate();
+
+        // write simulated zone to database
+        theZone.writeDB();
     }
     else
     {
         // get restaurants, drivers and orders for a zone from external source
-        theZone.populate();
+        theZone.readDB();
+
+        // stack orders
+        theZone.orderStack();
+
+        // optimize delivery routes
+        theZone.delivery();
+
+        // assign riders
+        theZone.assignRiders();
     }
-
-    // stack orders
-    theZone.orderStack();
-
-    // optimize delivery routes
-    theZone.delivery();
-
-    // assign riders
-    theZone.assignRiders();
 
     theZone.Report();
 }

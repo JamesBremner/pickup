@@ -3,12 +3,21 @@
 #include <vector>
 #include <math.h>
 #include "cRunWatch.h"
+#include "sqlite3.h"
+#include "raven_sqlite.h"
 #include "quadtree.h"
 
 #include "cZone.h"
 
 namespace pup
 {
+
+    cRider::cRider(float x, float y)
+    {
+        myLocation.first = x;
+        myLocation.second = y;
+        myBusy = false;
+    }
     cRider::cRider(const sConfig &config)
     {
         myLocation.first = (rand() % (config.ZoneDimKm * 100)) / 100.0;
@@ -40,6 +49,9 @@ namespace pup
 
     void cRiderPool::quadTreeBuild()
     {
+        if( myConfig.ZoneDimKm <= 0 )
+            throw std::runtime_error("cRiderPool::quadTreeBuild bad zone dimension");
+
         float dim2 = myConfig.ZoneDimKm / 2.0;
 
         if (myQuadTree)
@@ -56,10 +68,76 @@ namespace pup
         }
     }
 
+    void cRiderPool::write(raven::sqlite::cDB &db)
+    {
+        auto dbh = db.getHandle();
+        if (!dbh)
+            throw std::runtime_error("DB not open");
+        db.Query(
+            "CREATE TABLE IF NOT EXISTS rider "
+            " ( x, y );");
+        db.Query("DELETE FROM rider;");
+        sqlite3_stmt *stmt = 0;
+        const char *tail = 0;
+        int ret =
+            sqlite3_prepare_v2(
+                dbh,
+                "INSERT INTO rider VALUES ( ?, ? );",
+                -1,
+                &stmt,
+                &tail);
+        for (auto &r : myRiders)
+        {
+            ret = sqlite3_bind_double(stmt, 1, r.myLocation.first);
+            ret = sqlite3_bind_double(stmt, 2, r.myLocation.second);
+            ret = sqlite3_step(stmt);
+            ret = sqlite3_reset(stmt);
+        }
+        if (sqlite3_finalize(stmt))
+            throw std::runtime_error("DB rider write error");
+    }
+    void cRiderPool::read(raven::sqlite::cDB &db)
+    {
+        myRiders.clear();
+
+        auto dbh = db.getHandle();
+        if (!dbh)
+            throw std::runtime_error("DB not open");
+
+        sqlite3_stmt *stmt = 0;
+        const char *tail = 0;
+        int ret =
+            sqlite3_prepare_v2(
+                dbh,
+                "SELECT * FROM rider;",
+                -1,
+                &stmt,
+                &tail);
+        // loop over rows returned
+        while (sqlite3_step(stmt) == SQLITE_ROW)
+        {
+            myRiders.push_back(
+                cRider(
+                    sqlite3_column_double(stmt, 0),
+                    sqlite3_column_double(stmt, 1)));
+        }
+        sqlite3_finalize(stmt);
+
+        std::cout << myRiders.size() << " riders loaded\n";
+
+        quadTreeBuild();
+    }
+
     void cRiderPool::assign(cStack &S)
     {
-
         raven::set::cRunWatch aWatcher("Allocate rider to stack");
+
+        if (!S.orderCount())
+        {
+            // empty stack
+            S.myRider = -1;
+            return;
+        }
 
         // find riders acceptably close to restaurant
         auto rest = S.restaurant()->myLocation;
@@ -86,9 +164,9 @@ namespace pup
         quad::cPoint *allocated = 0;
         for (auto rider : riders)
         {
-            float rd =cZone::distance( 
+            float rd = cZone::distance(
                 rest,
-                std::make_pair( rider->x, rider->y )  );
+                std::make_pair(rider->x, rider->y));
             if (rd < d)
             {
                 // check that rider is not busy with other orders

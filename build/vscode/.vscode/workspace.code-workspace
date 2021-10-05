@@ -58,7 +58,9 @@
 			"ctime": "cpp",
 			"ratio": "cpp",
 			"set": "cpp",
-			"iomanip": "cpp"
+			"iomanip": "cpp",
+			"cstring": "cpp",
+			"cinttypes": "cpp"
 		}
 	}
 }

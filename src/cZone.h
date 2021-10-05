@@ -15,16 +15,16 @@ namespace pup
     class cZone
     {
     public:
-        pup::sConfig myConfig;
-        std::vector<cOrder> myOrders;
+        sConfig myConfig;
+        cOrderHolder myOrders;
         std::vector<cStack> myStacks;
-        std::vector<cRestaurant> myRestaurants;
+        cRestaurantHolder myRestaurants;
         cRiderPool myRiders;
 
         cZone();
 
         // populate zone with restaurants, drivers and orders from an external source
-        void populate();
+        void readDB();
 
         // simulate restaurants, drivers and orders for a zone
         void simulate();
@@ -79,6 +79,8 @@ namespace pup
             float x2, float y2,
             eDistMethod m = eDistMethod::manhatten);
 
+        void writeDB();
+
     private:
         void InitConfig();
 
@@ -88,5 +90,8 @@ namespace pup
 
         /// find restaurant with earlier ready order
         cRestaurant *FindRestFirstNextPickup();
+
+        void configWrite(raven::sqlite::cDB &db);
+        void configRead(raven::sqlite::cDB &db);
     };
 }
