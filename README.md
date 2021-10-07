@@ -20,6 +20,30 @@
  
  ## usage
  
+ ### Server
+ 
+ The server application listens on port 5000 for a TCP client to connect.  
+ 
+ If the client sends the message "simu" then a zone's restaurants, orders and riders
+ will be simulated and stored in a database.
+ 
+ If the client sends the message "calc" then a zone's restaurants, orders and riders will be read from a database,
+the orders stacked, drivers assigned to pickup the order stacks
+and the driver's delivery routes will be optimized.
+
+### GUI
+
+The GUI application provides a simple way to test the server application
+
+- Enter the IP address and port number of the server.
+- Click CONNECT button to connect to the server
+- Click SIMULATE button to request a zone simulation
+- Click CALCULATE button to request processing of the zone stored in the database
+
+### Pickup
+
+A console application to test and time profile the pickup code used by the server
+ 
  To simulate a zone's restaurants, orders and riders
  and store them in a database.
  
