@@ -38,7 +38,7 @@ namespace pup
     void cOrderHolder::simulate(cZone *zone)
     {
         myOrder.clear();
-        for (int o; o < zone->myConfig.OrdersPerGroupTime; o++)
+        for (int o = 0; o < zone->myConfig.OrdersPerGroupTime; o++)
         {
             myOrder.push_back(cOrder(zone));
         }
@@ -110,6 +110,8 @@ namespace pup
         }
         db.finalize();
         db.Query("END TRANSACTION;");
+
+        std::cout << myOrder.size() <<" orders stored to DB\n";
     }
 
     void cOrderHolder::read(raven::sqlite::cDB &db,

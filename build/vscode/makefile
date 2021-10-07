@@ -7,7 +7,10 @@ INCS = \
 	-I../../../raven-set \
 	-I../../../PathFinder/src \
 	-I../../../quadtree/src \
+	-I../../../windex/include \
 	-I../../src
+
+LIBS = -lstdc++fs -lgdi32 -lcomdlg32 -lws2_32 -lwsock32
 
 # folder for .o files
 ODIR=./obj
@@ -19,7 +22,20 @@ _TST = pickup.o cZone.o cOrder.o cRider.o \
 	cPathFinder.o cGraph.o quadtree.o cRunWatch.o \
 	raven_sqlite.o sqlite3.o
 
+_SERVER = server.o cZone.o cOrder.o cRider.o \
+	cPathFinder.o cGraph.o quadtree.o cRunWatch.o \
+	raven_sqlite.o sqlite3.o
+
+_GUI = gui.o
+
+_DEMO = tcpdemo.o
+
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
+SERVER = $(patsubst %,$(ODIR)/%,$(_SERVER))
+GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
+DEMO = $(patsubst %,$(ODIR)/%,$(_DEMO))
+
+# compile
 
 $(ODIR)/sqlite3.o: sqlite3.c
 	gcc	 -c -o $@ $<
@@ -27,12 +43,27 @@ $(ODIR)/%.o: %.cpp
 	g++ $(OPT)  -std=c++17 -D_mingw_  \
 	-c -o $@ $< $(INCS)
 
+# link
+
 test: $(TST)
 	g++ $(OPT) \
 	-o ../../bin/pickup.exe \
-	$^ \
-	-lstdc++fs
+	$^ $(LIBS)
 
+server: $(SERVER)
+	g++ $(OPT) \
+	-o ../../bin/server.exe \
+	$^ $(LIBS)
+
+gui: $(GUI)
+	g++ $(OPT) \
+	-o ../../bin/gui.exe \
+	$^ $(LIBS)
+
+demo: $(DEMO)
+	g++ $(OPT) \
+	-o ../../bin/demo.exe \
+	$^ $(LIBS)
 
 .PHONY: clean
 clean:

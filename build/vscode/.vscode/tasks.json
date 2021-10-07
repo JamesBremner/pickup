@@ -4,7 +4,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "pickup",
             "options": {
                 "cwd": "${workspaceFolder}"
                },
@@ -13,6 +13,66 @@
                 "-f",
                 "makefile",
                 "test"
+            ],
+
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "server",
+            "options": {
+                "cwd": "${workspaceFolder}"
+               },
+            "command": "mingw32-make.exe",
+            "args": [
+                "-f",
+                "makefile",
+                "server"
+            ],
+
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "gui",
+            "options": {
+                "cwd": "${workspaceFolder}"
+               },
+            "command": "mingw32-make.exe",
+            "args": [
+                "-f",
+                "makefile",
+                "gui"
+            ],
+
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "demo",
+            "options": {
+                "cwd": "${workspaceFolder}"
+               },
+            "command": "mingw32-make.exe",
+            "args": [
+                "-f",
+                "makefile",
+                "demo"
             ],
 
             "problemMatcher": [

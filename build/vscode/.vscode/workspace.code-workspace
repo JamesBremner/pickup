@@ -60,7 +60,11 @@
 			"set": "cpp",
 			"iomanip": "cpp",
 			"cstring": "cpp",
-			"cinttypes": "cpp"
+			"cinttypes": "cpp",
+			"thread": "cpp",
+			"condition_variable": "cpp",
+			"future": "cpp",
+			"mutex": "cpp"
 		}
 	}
 }

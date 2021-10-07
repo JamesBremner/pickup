@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/../../bin/pickup.exe",
-            "args": [],
+            "args": ["-sim"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}/../../bin",
             "environment": [],

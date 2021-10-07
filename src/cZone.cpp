@@ -23,6 +23,7 @@ namespace pup
         : myRiders(myConfig)
     {
         raven::set::cRunWatch::Start();
+        raven::set::cRunWatch::Clear();
     }
 
     void cZone::readDB()
