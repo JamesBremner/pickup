@@ -31,6 +31,8 @@ void calculate()
     // assign riders
     theZone.assignRiders();
 
+    theZone.stacksWriteDB();
+
     theZone.Report();
 }
 main()
@@ -46,7 +48,6 @@ main()
     thefm.events().tcpServerAccept([&]
                                    {
                                        std::cout << "Client connected\n";
-                                       myClientSocket = &theTCP.clientSocket();
                                        theTCP.read(theTCP.clientSocket());
                                    });
 

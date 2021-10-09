@@ -61,13 +61,15 @@ namespace pup
         int myTime;          // time, after start of group, when order will be ready for pickup
         cRestaurant *myRest; // restaurant where order was placed
         bool myWaiting;      // true if order has not yet been picked up
+        int myIndex;         // index of order in database
 
         // location order to be delivered to.  Km relative to restaurant location
         std::pair<float, float> myDelivery;
 
         cOrder(
             int ready, cRestaurant *rest,
-            float x, float y);
+            float x, float y,
+            int index);
 
         /// Construct with random values, used for simulation
         cOrder(cZone *zone);
@@ -103,21 +105,81 @@ namespace pup
     class cStack
     {
     public:
-        std::vector<cOrder> myOrder; /// the orders
-        int myRider;                 /// index of assigned rider
-        cRestaurant *restaurant();   /// pointer to restaurant where orders placed
+        cStack()
+            : myRider(-1)
+            , myRestaurant( 0 )
+        {
+        }
 
-        /// delivery locations in optimized order
+        /// arrange delivery locations in optimized order
         std::vector<std::pair<float, float>>
         deliveryLocations();
+
+        // add order to stack
+        void add(const cOrder &order);
 
         int orderCount() const
         {
             return myOrder.size();
         }
+        // pointer to restaurant
+        cRestaurant *restaurant();
+
+        // location of restaurant
+        std::pair<float, float> restaurantLocation();
+
+        void rider(int riderIndex)
+        {
+            myRider = riderIndex;
+        }
+        int rider() const
+        {
+            return myRider;
+        }
 
         // detailed report
         std::string text(cZone *zone);
-    };
 
+        std::vector<cOrder>::iterator begin()
+        {
+            return myOrder.begin();
+        }
+        std::vector<cOrder>::iterator end()
+        {
+            return myOrder.end();
+        }
+
+    private:
+        std::vector<cOrder> myOrder; /// the orders
+        int myRider;                 /// index of assigned rider
+        cRestaurant *myRestaurant;   /// pointer to restaurant where orders placed
+    };
+    class vStack
+    {
+    public:
+        std::vector<cStack> myStack;
+
+        void write(raven::sqlite::cDB &db);
+
+        int size() const
+        {
+            return (int)myStack.size();
+        }
+        void clear()
+        {
+            myStack.clear();
+        }
+        void add(const cStack &s)
+        {
+            myStack.push_back(s);
+        }
+        std::vector<cStack>::iterator begin()
+        {
+            return myStack.begin();
+        }
+        std::vector<cStack>::iterator end()
+        {
+            return myStack.end();
+        }
+    };
 }

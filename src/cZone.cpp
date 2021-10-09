@@ -70,6 +70,13 @@ namespace pup
         myRiders.write(db);
         configWrite(db);
     }
+    void cZone::stacksWriteDB()
+    {
+        raven::set::cRunWatch aWatcher("\tWrite stacks");
+        std::filesystem::create_directories("C:/ProgramData/RavensPoint/Pickup");
+        raven::sqlite::cDB db("C:/ProgramData/RavensPoint/Pickup/pickup.dat");  
+        myStacks.write(db);      
+    }
     void cZone::configWrite(raven::sqlite::cDB &db)
     {
         auto dbh = db.getHandle();
@@ -195,7 +202,7 @@ namespace pup
                 break; // all orders picked up
 
             // pickup some orders from resteraunt
-            myStacks.push_back(PickupOrders(nextRest));
+            myStacks.add(PickupOrders(nextRest));
 
             stackCount++;
         }
@@ -224,7 +231,7 @@ namespace pup
                     break;
 
                 // add order to stack
-                S.myOrder.push_back(O);
+                S.add(O);
                 O.myWaiting = false;
             }
         }

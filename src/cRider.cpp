@@ -137,12 +137,11 @@ namespace pup
         if (!S.orderCount())
         {
             // empty stack
-            S.myRider = -1;
             return;
         }
 
         // find riders acceptably close to restaurant
-        auto rest = S.restaurant()->myLocation;
+        auto rest = S.restaurantLocation();
         quad::cCell close(
             quad::cPoint(rest.first, rest.second),
             myConfig.CloseRiderDistanceKm);
@@ -157,7 +156,6 @@ namespace pup
         if (!riders.size())
         {
             // no acceptable rider for this stack, all too far away
-            S.myRider = -1;
             return;
         }
 
@@ -187,10 +185,9 @@ namespace pup
         if (!allocated)
         {
             // no acceptable rider for this stack, all busy
-            S.myRider = -1;
             return;
         }
-        S.myRider = allocated->userData;
+        S.rider( allocated->userData );
         myRiders[allocated->userData].myBusy = true;
         //std::cout << "allocated rider " << allocated->userData << "\n";
     }

@@ -17,7 +17,7 @@ namespace pup
     public:
         sConfig myConfig;
         cOrderHolder myOrders;
-        std::vector<cStack> myStacks;
+        vStack myStacks;
         cRestaurantHolder myRestaurants;
         cRiderPool myRiders;
 
@@ -61,7 +61,7 @@ namespace pup
          * @param[in] m calculation method, defaults to manhatten
          * @return the calculated distance
          * 
-         * Fo discussion https://github.com/JamesBremner/pickup/issues/2
+         * For discussion https://github.com/JamesBremner/pickup/issues/2
          * 
          */
         static float distance(
@@ -80,6 +80,8 @@ namespace pup
             eDistMethod m = eDistMethod::manhatten);
 
         void writeDB();
+
+        void stacksWriteDB();
 
     private:
         void InitConfig();
