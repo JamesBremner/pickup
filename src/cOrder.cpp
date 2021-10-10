@@ -122,8 +122,8 @@ namespace pup
                 "CREATE TABLE IF NOT EXISTS stacks ( rider );"))
             throw std::runtime_error("DB cannot create stacks");
         if (db.Query(
-                "CREATE TABLE IF NOT EXISTS stackorder ( stack, orderIndex );"))
-            throw std::runtime_error("DB cannot create stackorder");
+                "CREATE TABLE IF NOT EXISTS route ( stack, orderIndex );"))
+            throw std::runtime_error("DB cannot create route");
         db.Query("DELETE FROM stacks;");
         db.Query("BEGIN TRANSACTION;");
         db.Prepare("INSERT INTO stacks VALUES ( ? );");
@@ -136,7 +136,7 @@ namespace pup
         db.finalize();
         db.Query("END TRANSACTION;");
         db.Query("BEGIN TRANSACTION;");
-        db.Prepare("INSERT INTO stackorder VALUES ( ?, ? );");
+        db.Prepare("INSERT INTO route VALUES ( ?, ? );");
         int stackIndex = 0;
         for (auto &stack : myStack)
         {

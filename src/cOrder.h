@@ -106,8 +106,7 @@ namespace pup
     {
     public:
         cStack()
-            : myRider(-1)
-            , myRestaurant( 0 )
+            : myRider(-1), myRestaurant(0)
         {
         }
 
@@ -154,11 +153,18 @@ namespace pup
         int myRider;                 /// index of assigned rider
         cRestaurant *myRestaurant;   /// pointer to restaurant where orders placed
     };
+
+    // container for stacks created by processing orders
     class vStack
     {
     public:
-        std::vector<cStack> myStack;
+        /// add a stack
+        void add(const cStack &s)
+        {
+            myStack.push_back(s);
+        }
 
+        // save stacks in database
         void write(raven::sqlite::cDB &db);
 
         int size() const
@@ -169,10 +175,7 @@ namespace pup
         {
             myStack.clear();
         }
-        void add(const cStack &s)
-        {
-            myStack.push_back(s);
-        }
+
         std::vector<cStack>::iterator begin()
         {
             return myStack.begin();
@@ -181,5 +184,8 @@ namespace pup
         {
             return myStack.end();
         }
+
+    private:
+        std::vector<cStack> myStack;
     };
 }
