@@ -40,6 +40,10 @@ The GUI application provides a simple way to test the server application
 - Click SIMULATE button to request a zone simulation
 - Click CALCULATE button to request processing of the zone stored in the database
 
+### Database
+
+[Database Design Documentation]https://github.com/JamesBremner/pickup/wiki/Database-Design)
+
 ### Pickup
 
 A console application to test and time profile the pickup code used by the server
