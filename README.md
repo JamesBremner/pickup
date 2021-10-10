@@ -42,7 +42,7 @@ The GUI application provides a simple way to test the server application
 
 ### Database
 
-[Database Design Documentation]https://github.com/JamesBremner/pickup/wiki/Database-Design)
+[Database Design Documentation](https://github.com/JamesBremner/pickup/wiki/Database-Design)
 
 ### Pickup
 
