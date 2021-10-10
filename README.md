@@ -48,45 +48,4 @@ The GUI application provides a simple way to test the server application
 
 A console application to test and time profile the pickup code used by the server
  
- To simulate a zone's restaurants, orders and riders
- and store them in a database.
- 
- ```
->pickup -sim
-Pickup
-Simulating
-Zone dimension Km                25
-Orders per hour                  20000
-Order collection time mins     5
-Restaurants                    5000
-Pickup window mins             5
-Maximum order preparation mins 15
-Maximum distance of rider Km   10
-
-raven::set::cRunWatch code timing profile
-Calls           Mean (secs)     Total           Scope
-       1        0.118815        0.118815                Write DB
-```
-
-To read a zone's restaurants, orders and riders from a database,
-stack the orders, assign drivers to pickup the order stacks
-and optimize the driver's delivery routes
-
-
-```
->pickup
-Pickup
-5000 restaurants loaded
-1666 orders loaded
-5000 riders loaded
-
-1407 order stacks created
-
-raven::set::cRunWatch code timing profile
-Calls           Mean (secs)     Total           Scope
-       1        2.9227          2.9227          Stack orders
-    1407        1.17992e-05     0.0166015       Allocate rider to stack
-    1407        6.85053e-06     0.0096387       Optimize stack delivery route
-       1        0.0066089       0.0066089       Read DB
-
-```
+[Pickup User's Manual](https://github.com/JamesBremner/pickup/wiki/Pickup-User's-Manual)
