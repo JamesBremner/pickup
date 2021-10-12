@@ -12,7 +12,7 @@
 
 namespace pup
 {
-    void cRestaurantHolder::simulate(const sConfig &config)
+    void cRestaurantHolder::simulate(const cConfig &config)
     {
         myRestaurant.clear();
         for (int k = 0; k < config.RestaurantCount; k++)

@@ -22,18 +22,17 @@ _TST = pickup.o cZone.o cOrder.o cRider.o \
 	cPathFinder.o cGraph.o quadtree.o cRunWatch.o \
 	raven_sqlite.o sqlite3.o
 
-_SERVER = server.o cZone.o cOrder.o cRider.o \
+_SERVER = server.o cZone.o cOrder.o cRider.o config.o \
 	cPathFinder.o cGraph.o quadtree.o cRunWatch.o \
 	raven_sqlite.o sqlite3.o
 
-_GUI = gui.o
+_GUI = gui.o config.o \
+	raven_sqlite.o sqlite3.o
 
-_DEMO = tcpdemo.o
 
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
 SERVER = $(patsubst %,$(ODIR)/%,$(_SERVER))
 GUI = $(patsubst %,$(ODIR)/%,$(_GUI))
-DEMO = $(patsubst %,$(ODIR)/%,$(_DEMO))
 
 # compile
 

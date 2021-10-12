@@ -1,6 +1,8 @@
 #include <winsock2.h>
 #include "wex.h"
 #include "tcp.h"
+#include "raven_sqlite.h"
+#include "cRunWatch.h"
 #include "cZone.h"
 
 void simulate()
@@ -19,19 +21,24 @@ void calculate()
 {
     pup::cZone theZone;
 
-    // get restaurants, drivers and orders for a zone from external source
-    theZone.readDB();
+    {
+        raven::set::cRunWatch aWatcher("\tZone calculation");
 
-    // stack orders
-    theZone.orderStack();
+        // get restaurants, drivers and orders for a zone from external source
+        theZone.readDB();
 
-    // optimize delivery routes
-    theZone.delivery();
+        // stack orders
+        theZone.orderStack();
 
-    // assign riders
-    theZone.assignRiders();
+        // optimize delivery routes
+        theZone.delivery();
 
-    theZone.stacksWriteDB();
+        // assign riders
+        theZone.assignRiders();
+
+        // save results to database
+        theZone.stacksWriteDB();
+    }
 
     theZone.Report();
 }

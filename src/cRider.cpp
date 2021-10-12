@@ -18,7 +18,7 @@ namespace pup
         myLocation.second = y;
         myBusy = false;
     }
-    cRider::cRider(const sConfig &config)
+    cRider::cRider(const cConfig &config)
     {
         myLocation.first = (rand() % (config.ZoneDimKm * 100)) / 100.0;
         myLocation.second = (rand() % (config.ZoneDimKm * 100)) / 100.0;
@@ -33,7 +33,7 @@ namespace pup
         return ss.str();
     }
 
-    cRiderPool::cRiderPool(sConfig &config)
+    cRiderPool::cRiderPool(cConfig &config)
         : myConfig(config), myQuadTree(0)
     {
     }

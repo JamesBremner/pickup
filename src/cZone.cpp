@@ -37,21 +37,30 @@ namespace pup
                          "Type:  pickup -sim\n\n";
             exit(1);
         }
-        // myConfig.PickupWindowSecs = 5 * 60;
-        // myConfig.CloseRiderDistanceKm = 10;
-        // myConfig.ZoneDimKm = 25;
-
-        configRead(db);
+        myConfig.read(db);
         myRestaurants.read(db);
         myOrders.read(db, this);
         myRiders.read(db);
+    }
+
+    void cZone::readConfig()
+    {
+        // set default config values
+        // in case problem reading DB
+        InitConfig();
+
+        raven::set::cRunWatch aWatcher("\tRead DB");
+        raven::sqlite::cDB db("C:/ProgramData/RavensPoint/Pickup/pickup.dat");
+        if (!db.getHandle())
+            return;
+        myConfig.read(db);
     }
 
     void cZone::simulate()
     {
         std::cout << "Simulating\n";
 
-        InitConfig();
+        readConfig();
 
         myRestaurants.simulate(myConfig);
 
@@ -68,55 +77,14 @@ namespace pup
         myRestaurants.write(db);
         myOrders.write(db, this);
         myRiders.write(db);
-        configWrite(db);
+        myConfig.write(db);
     }
     void cZone::stacksWriteDB()
     {
         raven::set::cRunWatch aWatcher("\tWrite stacks");
         std::filesystem::create_directories("C:/ProgramData/RavensPoint/Pickup");
-        raven::sqlite::cDB db("C:/ProgramData/RavensPoint/Pickup/pickup.dat");  
-        myStacks.write(db);      
-    }
-    void cZone::configWrite(raven::sqlite::cDB &db)
-    {
-        auto dbh = db.getHandle();
-        if (!dbh)
-            throw std::runtime_error("DB not open");
-        db.Query(
-            "CREATE TABLE IF NOT EXISTS config "
-            " ( ZoneDimKm, PickupWindowSecs, CloseRiderDistanceKm );");
-        db.Query("DELETE FROM config;");
-        if (!db.Prepare(
-                "INSERT INTO config VALUES ( ?, ?, ? );"))
-            throw std::runtime_error(
-                std::string("cZone::configWrite DB error\n") + db.myError);
-
-        db.Bind(1, myConfig.ZoneDimKm);
-        db.Bind(2, myConfig.PickupWindowSecs);
-        db.Bind(3, myConfig.CloseRiderDistanceKm);
-        db.step();
-        if (db.finalize())
-            throw std::runtime_error("DB config write error");
-    }
-
-    void cZone::configRead(raven::sqlite::cDB &db)
-    {
-        auto dbh = db.getHandle();
-        if (!dbh)
-            throw std::runtime_error("DB not open");
-        if (!db.Prepare(
-                "SELECT * FROM config;"))
-            throw std::runtime_error(
-                std::string("cZone::configRead DB error\n") + db.myError);
-
-        if (db.step() != SQLITE_ROW)
-            throw std::runtime_error("Canot read config from DB");
-
-        myConfig.ZoneDimKm = db.ColumnInt( 0);
-        myConfig.PickupWindowSecs = db.ColumnInt( 1);
-        myConfig.CloseRiderDistanceKm = db.ColumnDouble( 2);
-
-        db.finalize();
+        raven::sqlite::cDB db("C:/ProgramData/RavensPoint/Pickup/pickup.dat");
+        myStacks.write(db);
     }
 
     void cZone::InitConfig()
@@ -129,10 +97,9 @@ namespace pup
         myConfig.ZoneDimKm = 25;         // zone dimension
         myConfig.CloseRiderDistanceKm = 10;
 
-        myConfig.OrdersPerGroupTime =
-            myConfig.GroupTimeMins * myConfig.OrdersPerHour / 60;
-        myConfig.PickupWindowSecs = myConfig.PickupWindowMins * 60;
         myConfig.RiderCount = myConfig.RestaurantCount; // one rider per restaurant
+
+        myConfig.calculate();
     }
     void cZone::Sort()
     {

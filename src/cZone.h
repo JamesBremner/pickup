@@ -15,7 +15,7 @@ namespace pup
     class cZone
     {
     public:
-        sConfig myConfig;
+        cConfig myConfig;
         cOrderHolder myOrders;
         vStack myStacks;
         cRestaurantHolder myRestaurants;
@@ -25,6 +25,8 @@ namespace pup
 
         // populate zone with restaurants, drivers and orders from an external source
         void readDB();
+
+        void readConfig();
 
         // simulate restaurants, drivers and orders for a zone
         void simulate();
@@ -93,7 +95,5 @@ namespace pup
         /// find restaurant with earlier ready order
         cRestaurant *FindRestFirstNextPickup();
 
-        void configWrite(raven::sqlite::cDB &db);
-        void configRead(raven::sqlite::cDB &db);
     };
 }

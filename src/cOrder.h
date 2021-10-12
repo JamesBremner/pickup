@@ -34,7 +34,7 @@ namespace pup
     public:
         std::vector<cRestaurant> myRestaurant;
 
-        void simulate(const sConfig &config);
+        void simulate(const cConfig &config);
 
         void write(raven::sqlite::cDB &db);
         void read(raven::sqlite::cDB &db);

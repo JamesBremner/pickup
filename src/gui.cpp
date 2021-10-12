@@ -1,5 +1,8 @@
 #include <iostream>
 #include "tcp.h"
+#include "propertygrid.h"
+#include "raven_sqlite.h"
+#include "config.h"
 
 class cGUI
 {
@@ -9,6 +12,8 @@ public:
 
 private:
     wex::gui &myForm;
+    wex::tabbed &tabs;
+    wex::panel &pnlServer;
     wex::label &labelIP;
     wex::editbox &editIP;
     wex::label &labelPort;
@@ -17,9 +22,15 @@ private:
     wex::button &myCalcBn;
     wex::button &mySimBn;
     wex::label &myStatus;
+
+    wex::panel &pnlZone;
+    wex::propertyGrid &pg;
+    wex::button &bnZone;
+
     wex::tcp &myTCP;
     SOCKET *myClientSocket;
 
+    void costructZonePG(wex::propertyGrid &pg);
     void status(const std::string &msg);
     void connect();
 };
@@ -27,19 +38,30 @@ private:
 cGUI::cGUI()
     : myForm(wex::maker::make()),
 
-      myConnectbn(wex::maker::make<wex::button>(myForm)),
-      labelIP(wex::maker::make<wex::label>(myForm)),
-      editIP(wex::maker::make<wex::editbox>(myForm)),
-      labelPort(wex::maker::make<wex::label>(myForm)),
-      editPort(wex::maker::make<wex::editbox>(myForm)),
-      myCalcBn(wex::maker::make<wex::button>(myForm)),
-      mySimBn(wex::maker::make<wex::button>(myForm)),
-      myStatus(wex::maker::make<wex::label>(myForm)),
+      tabs(wex::maker::make<wex::tabbed>(myForm)),
+      pnlServer(wex::maker::make<wex::panel>(tabs)),
+      myConnectbn(wex::maker::make<wex::button>(pnlServer)),
+      labelIP(wex::maker::make<wex::label>(pnlServer)),
+      editIP(wex::maker::make<wex::editbox>(pnlServer)),
+      labelPort(wex::maker::make<wex::label>(pnlServer)),
+      editPort(wex::maker::make<wex::editbox>(pnlServer)),
+      myCalcBn(wex::maker::make<wex::button>(pnlServer)),
+      mySimBn(wex::maker::make<wex::button>(pnlServer)),
+      myStatus(wex::maker::make<wex::label>(pnlServer)),
+
+      pnlZone(wex::maker::make<wex::panel>(tabs)),
+      pg(wex::maker::make<wex::propertyGrid>(pnlZone)),
+      bnZone(wex::maker::make<wex::button>(pnlZone)),
 
       myTCP(wex::maker::make<wex::tcp>(myForm))
 {
-    myForm.move(50, 50, 400, 300);
+    myForm.move(50, 50, 400, 400);
     myForm.text("Pickup GUI");
+
+    // construct tabbed panel
+    tabs.move(0, 0, 300, 400);
+    tabs.add("Server", pnlServer);
+    tabs.add("Zone", pnlZone);
 
     myConnectbn.move({50, 50, 100, 30});
     myConnectbn.text("Connect");
@@ -68,7 +90,62 @@ cGUI::cGUI()
     mySimBn.text("Simulate");
     mySimBn.events().click([&]
                            { myTCP.send("simu"); });
+
+    costructZonePG(pg);
+
     myForm.show();
+    tabs.select(0);
+}
+void cGUI::costructZonePG(wex::propertyGrid &pg)
+{
+    static std::string dbname("C:/ProgramData/RavensPoint/Pickup/pickup.dat");
+
+    pg.move({20, 50, 200, 200});
+    pg.text("Zone Parameters");
+    pg.string("Dimension (km)", "25");
+    pg.string("Restaurants", "5000");
+    pg.string("Orders / Hour", "20000");
+    pg.string("Group Time (mins)", "15");
+    pg.string("Max Prep Time (mins)", "15");
+    pg.string("Riders", "5000");
+    pg.string("Pickup Window (mins)", "5");
+    pg.string("Rider Dist (km)", "5");
+
+    bnZone.move({50, 300, 100, 30});
+    bnZone.text("SAVE");
+    bnZone.events().click([&]
+                          {
+                              raven::sqlite::cDB db(dbname.c_str());
+                              pup::cConfig cfg;
+                              cfg.ZoneDimKm = atof(pg.find("Dimension (km)")->value().c_str());
+                              cfg.CloseRiderDistanceKm = atof(pg.find("Rider Dist (km)")->value().c_str());
+                              cfg.GroupTimeMins = atof(pg.find("Group Time (mins)")->value().c_str());
+                              cfg.MaxPrepTimeMins = atof(pg.find("Max Prep Time (mins)")->value().c_str());
+                              cfg.OrdersPerHour = atof(pg.find("Orders / Hour")->value().c_str());
+                              cfg.PickupWindowMins = atof(pg.find("Pickup Window (mins)")->value().c_str());
+                              cfg.RiderCount = atof(pg.find("Riders")->value().c_str());
+                              cfg.RestaurantCount = atof(pg.find("Restaurants")->value().c_str());
+                              cfg.write( db );
+                          });
+
+    raven::sqlite::cDB db(dbname.c_str());
+    if (!db.getHandle())
+        return;
+
+    db.Query("SELECT * FROM config;");
+    if (db.myColCount != 8)
+        return;
+
+    pg.find("Dimension (km)")->value(db.myResultA[0]);
+    pg.find("Rider Dist (km)")->value(db.myResultA[1]);
+    pg.find("Orders / Hour")->value(db.myResultA[2]);
+    pg.find("Group Time (mins)")->value(db.myResultA[3]);
+    pg.find("Restaurants")->value(db.myResultA[4]);
+    pg.find("Pickup Window (mins)")->value(db.myResultA[5]);
+    pg.find("Max Prep Time (mins)")->value(db.myResultA[6]);
+    pg.find("Riders")->value(db.myResultA[7]);
+
+    db.Close();
 }
 void cGUI::connect()
 {
@@ -76,7 +153,7 @@ void cGUI::connect()
     {
         myTCP.client(
             editIP.text(),
-            editPort.text() );
+            editPort.text());
         status("Connected to server ");
         myTCP.read();
     }
