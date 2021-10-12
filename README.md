@@ -35,10 +35,7 @@ and the driver's delivery routes will be optimized.
 
 The GUI application provides a simple way to test the server application
 
-- Enter the IP address and port number of the server.
-- Click CONNECT button to connect to the server
-- Click SIMULATE button to request a zone simulation
-- Click CALCULATE button to request processing of the zone stored in the database
+[GUI User's manual](https://github.com/JamesBremner/pickup/wiki/GUI-User-Manual)
 
 ### Database
 
