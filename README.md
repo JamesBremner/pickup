@@ -37,6 +37,10 @@ The GUI application provides a simple way to test the server application
 
 [GUI User's manual](https://github.com/JamesBremner/pickup/wiki/GUI-User-Manual)
 
+### Performance
+
+![image](https://user-images.githubusercontent.com/2046227/137009815-82a55c85-b0b8-4843-958d-982cc0d47f9d.png)
+
 ### Database
 
 [Database Design Documentation](https://github.com/JamesBremner/pickup/wiki/Database-Design)
