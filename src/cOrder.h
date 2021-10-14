@@ -165,7 +165,9 @@ namespace pup
         }
 
         // save stacks in database
-        void write(raven::sqlite::cDB &db);
+        void write(
+            raven::sqlite::cDB &db,
+            cZone* zone);
 
         int size() const
         {

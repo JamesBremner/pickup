@@ -114,22 +114,24 @@ namespace pup
 
         std::cout << myOrder.size() << " orders stored to DB\n";
     }
-    void vStack::write(raven::sqlite::cDB &db)
+    void vStack::write(raven::sqlite::cDB &db, cZone* zone )
     {
         if (!db.getHandle())
             throw std::runtime_error("DB not open");
         if (db.Query(
-                "CREATE TABLE IF NOT EXISTS stacks ( rider );"))
+                "CREATE TABLE IF NOT EXISTS stacks ( rst, rider );"))
             throw std::runtime_error("DB cannot create stacks");
+        db.Query("DELETE FROM stacks;");
         if (db.Query(
                 "CREATE TABLE IF NOT EXISTS route ( stack, orderIndex );"))
             throw std::runtime_error("DB cannot create route");
-        db.Query("DELETE FROM stacks;");
+        db.Query("DELETE FROM route;");
         db.Query("BEGIN TRANSACTION;");
-        db.Prepare("INSERT INTO stacks VALUES ( ? );");
+        db.Prepare("INSERT INTO stacks VALUES ( ?, ? );");
         for (auto &stack : myStack)
         {
-            db.Bind(1, stack.rider());
+            db.Bind(1, zone->myRestaurants.index(stack.restaurant())+1);
+            db.Bind(2, stack.rider()+1);
             db.step();
             db.reset();
         }
@@ -137,7 +139,7 @@ namespace pup
         db.Query("END TRANSACTION;");
         db.Query("BEGIN TRANSACTION;");
         db.Prepare("INSERT INTO route VALUES ( ?, ? );");
-        int stackIndex = 0;
+        int stackIndex = 1;                 // sqlite rowids are 1-based
         for (auto &stack : myStack)
         {
             for (auto &order : stack)

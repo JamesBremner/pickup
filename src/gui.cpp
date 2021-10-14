@@ -27,10 +27,14 @@ private:
     wex::propertyGrid &pg;
     wex::button &bnZone;
 
+    wex::panel &pnRest;
+    wex::editbox &edRest;
+
     wex::tcp &myTCP;
     SOCKET *myClientSocket;
 
     void costructZonePG(wex::propertyGrid &pg);
+    void constructResults();
     void status(const std::string &msg);
     void connect();
 };
@@ -53,6 +57,9 @@ cGUI::cGUI()
       pg(wex::maker::make<wex::propertyGrid>(pnlZone)),
       bnZone(wex::maker::make<wex::button>(pnlZone)),
 
+      pnRest(wex::maker::make<wex::panel>(tabs)),
+      edRest(wex::maker::make<wex::editbox>(pnRest)),
+
       myTCP(wex::maker::make<wex::tcp>(myForm))
 {
     myForm.move(50, 50, 400, 400);
@@ -62,6 +69,7 @@ cGUI::cGUI()
     tabs.move(0, 0, 300, 400);
     tabs.add("Server", pnlServer);
     tabs.add("Zone", pnlZone);
+    tabs.add("Results", pnRest);
 
     myConnectbn.move({50, 50, 100, 30});
     myConnectbn.text("Connect");
@@ -92,9 +100,46 @@ cGUI::cGUI()
                            { myTCP.send("simu"); });
 
     costructZonePG(pg);
+    constructResults();
 
     myForm.show();
     tabs.select(0);
+}
+
+void cGUI::constructResults()
+{
+    edRest.move({20, 300, 100, 30});
+    edRest.events().change(edRest.id(), [this]
+                           {
+                               std::cout << edRest.text() << "\n";
+                               int index = atoi(edRest.text().c_str());
+                               if (0 >= index)
+                                   return;
+                               static std::string dbname("C:/ProgramData/RavensPoint/Pickup/pickup.dat");
+                               raven::sqlite::cDB db(dbname.c_str());
+                               if (!db.getHandle())
+                                   return;
+                               db.Query("SELECT * FROM restaurant WHERE rowid = %d",
+                                        index);
+                               if (db.myResultA.size() != 2)
+                                   return;
+                               float restX = atof(db.myResultA[0].c_str());
+                               float restY = atof(db.myResultA[1].c_str());
+
+                               db.Query(
+                                   "SELECT rowid FROM stacks WHERE rst = %d;",
+                                   index);
+                               int stackIndex = atoi(db.myResultA[0].c_str());
+                               db.Query(
+                                   "SELECT * FROM rider WHERE rowid = "
+                                   " ( SELECT rider FROM stacks WHERE rowid = %d );",
+                                   stackIndex);
+                               float riderX = atof(db.myResultA[0].c_str());
+                               float riderY = atof(db.myResultA[1].c_str());
+
+                               pnRest.text("\n  Restaurant at " + std::to_string(restX) + ", " + std::to_string(restY) + "\n  rider at " + std::to_string(riderX) + ", " + std::to_string(riderY));
+                               pnRest.update();
+                           });
 }
 void cGUI::costructZonePG(wex::propertyGrid &pg)
 {
@@ -125,7 +170,7 @@ void cGUI::costructZonePG(wex::propertyGrid &pg)
                               cfg.PickupWindowMins = atof(pg.find("Pickup Window (mins)")->value().c_str());
                               cfg.RiderCount = atof(pg.find("Riders")->value().c_str());
                               cfg.RestaurantCount = atof(pg.find("Restaurants")->value().c_str());
-                              cfg.write( db );
+                              cfg.write(db);
                           });
 
     raven::sqlite::cDB db(dbname.c_str());

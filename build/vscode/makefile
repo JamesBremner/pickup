@@ -15,7 +15,7 @@ LIBS = -lstdc++fs -lgdi32 -lcomdlg32 -lws2_32 -lwsock32
 # folder for .o files
 ODIR=./obj
 
-OPT=-O2
+OPT=-g
 
 # sources
 _TST = pickup.o cZone.o cOrder.o cRider.o \

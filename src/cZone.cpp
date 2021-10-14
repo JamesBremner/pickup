@@ -84,7 +84,7 @@ namespace pup
         raven::set::cRunWatch aWatcher("\tWrite stacks");
         std::filesystem::create_directories("C:/ProgramData/RavensPoint/Pickup");
         raven::sqlite::cDB db("C:/ProgramData/RavensPoint/Pickup/pickup.dat");
-        myStacks.write(db);
+        myStacks.write(db,this);
     }
 
     void cZone::InitConfig()
