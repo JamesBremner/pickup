@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include "tcp.h"
 #include "propertygrid.h"
 #include "raven_sqlite.h"
@@ -28,6 +29,7 @@ private:
     wex::button &bnZone;
 
     wex::panel &pnRest;
+    wex::label & lbRest;
     wex::editbox &edRest;
 
     wex::tcp &myTCP;
@@ -58,6 +60,7 @@ cGUI::cGUI()
       bnZone(wex::maker::make<wex::button>(pnlZone)),
 
       pnRest(wex::maker::make<wex::panel>(tabs)),
+      lbRest(wex::maker::make<wex::label>(pnRest)),
       edRest(wex::maker::make<wex::editbox>(pnRest)),
 
       myTCP(wex::maker::make<wex::tcp>(myForm))
@@ -66,7 +69,8 @@ cGUI::cGUI()
     myForm.text("Pickup GUI");
 
     // construct tabbed panel
-    tabs.move(0, 0, 300, 400);
+    tabs.move(0, 0, 400, 400);
+    tabs.tabWidth(120);
     tabs.add("Server", pnlServer);
     tabs.add("Zone", pnlZone);
     tabs.add("Results", pnRest);
@@ -108,7 +112,11 @@ cGUI::cGUI()
 
 void cGUI::constructResults()
 {
-    edRest.move({20, 300, 100, 30});
+    pnRest.fontName("courier");
+    pnRest.fontHeight(18);
+    lbRest.move({10, 10, 100,30});
+    lbRest.text("Restaurant #");
+    edRest.move({130, 10, 100, 30});
     edRest.events().change(edRest.id(), [this]
                            {
                                std::cout << edRest.text() << "\n";
@@ -119,6 +127,8 @@ void cGUI::constructResults()
                                raven::sqlite::cDB db(dbname.c_str());
                                if (!db.getHandle())
                                    return;
+
+                               // get restaurant location
                                db.Query("SELECT * FROM restaurant WHERE rowid = %d",
                                         index);
                                if (db.myResultA.size() != 2)
@@ -126,10 +136,13 @@ void cGUI::constructResults()
                                float restX = atof(db.myResultA[0].c_str());
                                float restY = atof(db.myResultA[1].c_str());
 
+                               // get stack of orders
                                db.Query(
                                    "SELECT rowid FROM stacks WHERE rst = %d;",
                                    index);
                                int stackIndex = atoi(db.myResultA[0].c_str());
+
+                               // get rider
                                db.Query(
                                    "SELECT * FROM rider WHERE rowid = "
                                    " ( SELECT rider FROM stacks WHERE rowid = %d );",
@@ -137,7 +150,22 @@ void cGUI::constructResults()
                                float riderX = atof(db.myResultA[0].c_str());
                                float riderY = atof(db.myResultA[1].c_str());
 
-                               pnRest.text("\n  Restaurant at " + std::to_string(restX) + ", " + std::to_string(restY) + "\n  rider at " + std::to_string(riderX) + ", " + std::to_string(riderY));
+                               // get deliveries
+                               db.Query(
+                                   "SELECT x, y FROM orderHolder WHERE rowid IN "
+                                   " (SELECT orderIndex FROM route WHERE stack = %d );",
+                                   stackIndex);
+
+                               std::stringstream ss;
+                               ss << std::setprecision(2) << std::fixed << "\n\n\n"
+                                  << "\n  Restaurant at " << restX << ", " << restY
+                                  << "\n  rider at      " << riderX << ", " << riderY
+                                  << "\n  deliveries to ";
+                               for (int k = 0; k < db.myResultA.size(); k += 2)
+                                   ss
+                                       << "\n                " << atof(db.myResultA[k].c_str()) << ", " << atof(db.myResultA[k + 1].c_str());
+
+                               pnRest.text(ss.str());
                                pnRest.update();
                            });
 }

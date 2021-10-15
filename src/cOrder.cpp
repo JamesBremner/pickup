@@ -145,7 +145,7 @@ namespace pup
             for (auto &order : stack)
             {
                 db.Bind(1, stackIndex);
-                db.Bind(2, order.myIndex);
+                db.Bind(2, order.myIndex+1);
                 db.step();
                 db.reset();
             }
@@ -212,8 +212,11 @@ namespace pup
         myTime = rand() % zone->myConfig.MaxPrepTimeMins;
         myRest = &zone->myRestaurants.myRestaurant[rand() % zone->myConfig.RestaurantCount];
         myWaiting = true;
-        myDelivery.first = (rand() % 250) / 100.0;
-        myDelivery.second = (rand() % 250) / 100.0;
+
+        // random delivery location
+        // less then 2.5 km from restaurant
+        myDelivery.first = myRest->myLocation.first + (rand() % 500) / 100.0 - 2.5;
+        myDelivery.second = myRest->myLocation.second + (rand() % 500) / 100.0 - 2.5;
     }
     void cStack::add(const cOrder &order)
     {
@@ -275,14 +278,14 @@ namespace pup
         if (myRider == -1)
         {
             ss << "No rider assigned\n";
-            return ss.str();
-            ;
-        }
+        } else {
 
         ss << "Rider # " << myRider
            << " at " << zone->myRiders.location(myRider).first
-           << "," << zone->myRiders.location(myRider).second
-           << " delivers to ";
+           << "," << zone->myRiders.location(myRider).second;
+        }
+
+        ss   << " "<< myOrder.size() << " orders delivered to ";
         for (auto &o : myOrder)
         {
             ss

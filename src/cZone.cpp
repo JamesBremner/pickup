@@ -203,11 +203,7 @@ namespace pup
             }
         }
 
-        // std::cout << "Picked up " << v.size() << " orders "
-        //     << *v.begin() << " to " << v.back() << "\n";
-        // for (auto &o : v)
-        //     std::cout << o << ",";
-        // std::cout << "\n";
+        //std::cout << "Picked up " << S.text( this ) << "\n";
 
         return S;
     }
@@ -241,15 +237,15 @@ namespace pup
 
         std::cout << stackCount() << " order stacks created\n";
 
-        // detailed report of first 5 order stacks
-        int count = 0;
-        for (auto &stack : myStacks)
-        {
-            std::cout << stack.text(this) << "\n";
-            count++;
-            if (count >= 5)
-                break;
-        }
+        // // detailed report of first 5 order stacks
+        // int count = 0;
+        // for (auto &stack : myStacks)
+        // {
+        //     std::cout << stack.text(this) << "\n";
+        //     count++;
+        //     if (count >= 5)
+        //         break;
+        // }
 
         // timing report
         raven::set::cRunWatch::Report();
