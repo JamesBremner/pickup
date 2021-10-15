@@ -29,7 +29,7 @@ private:
     wex::button &bnZone;
 
     wex::panel &pnRest;
-    wex::label & lbRest;
+    wex::label &lbRest;
     wex::editbox &edRest;
 
     wex::tcp &myTCP;
@@ -106,6 +106,15 @@ cGUI::cGUI()
     costructZonePG(pg);
     constructResults();
 
+    myForm.events()
+        .tcpServerReadComplete([&]
+                               {
+                                   if (!myTCP.isConnected())
+                                   {
+                                       status("Not connected");
+                                   }
+                               });
+
     myForm.show();
     tabs.select(0);
 }
@@ -114,7 +123,7 @@ void cGUI::constructResults()
 {
     pnRest.fontName("courier");
     pnRest.fontHeight(18);
-    lbRest.move({10, 10, 100,30});
+    lbRest.move({10, 10, 100, 30});
     lbRest.text("Restaurant #");
     edRest.move({130, 10, 100, 30});
     edRest.events().change(edRest.id(), [this]
