@@ -63,7 +63,11 @@ main()
         .tcpRead([&]
                  {
                      if( ! theTCP.isConnected() )
+                    {
+                        // wait for another client
+                        theTCP.server("5000");
                         return;
+                    }
                      std::string smsg(theTCP.rcvbuf());
                      if (smsg == "simu")
                          simulate();
