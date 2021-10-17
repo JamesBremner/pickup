@@ -55,24 +55,26 @@ main()
     thefm.events().tcpServerAccept([&]
                                    {
                                        std::cout << "Client connected\n";
-                                       theTCP.read(theTCP.clientSocket());
+                                       theTCP.read();
                                    });
 
     // handle message from client
     thefm.events()
-        .tcpServerReadComplete([&]
-                               {
-                                   std::string smsg(theTCP.rcvbuf());
-                                   if (smsg == "simu")
-                                       simulate();
-                                   else if (smsg == "calc")
-                                       calculate();
-                                   else
-                                       std::cout << "Msg read: " << smsg << "\n";
+        .tcpRead([&]
+                 {
+                     if( ! theTCP.isConnected() )
+                        return;
+                     std::string smsg(theTCP.rcvbuf());
+                     if (smsg == "simu")
+                         simulate();
+                     else if (smsg == "calc")
+                         calculate();
+                     else
+                         std::cout << "Msg read: " << smsg << "\n";
 
-                                   // setup for next message
-                                   theTCP.read(theTCP.clientSocket());
-                               });
+                     // setup for next message
+                     theTCP.read();
+                 });
 
     std::cout << "start server running\n";
 

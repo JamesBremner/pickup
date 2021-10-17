@@ -107,13 +107,13 @@ cGUI::cGUI()
     constructResults();
 
     myForm.events()
-        .tcpServerReadComplete([&]
-                               {
-                                   if (!myTCP.isConnected())
-                                   {
-                                       status("Not connected");
-                                   }
-                               });
+        .tcpRead([&]
+                 {
+                     if (!myTCP.isConnected())
+                     {
+                         status("Not connected");
+                     }
+                 });
 
     myForm.show();
     tabs.select(0);
@@ -123,9 +123,10 @@ void cGUI::constructResults()
 {
     pnRest.fontName("courier");
     pnRest.fontHeight(18);
-    lbRest.move({10, 10, 100, 30});
+    lbRest.move({10, 10, 120, 30});
     lbRest.text("Restaurant #");
-    edRest.move({130, 10, 100, 30});
+    edRest.move({150, 10, 100, 30});
+    edRest.text("");
     edRest.events().change(edRest.id(), [this]
                            {
                                std::cout << edRest.text() << "\n";
@@ -236,8 +237,11 @@ void cGUI::connect()
         myTCP.client(
             editIP.text(),
             editPort.text());
-        status("Connected to server ");
-        myTCP.read();
+        if (myTCP.isConnected())
+        {
+            status("Connected to server ");
+            myTCP.read();
+        }
     }
     catch (std::runtime_error &e)
     {

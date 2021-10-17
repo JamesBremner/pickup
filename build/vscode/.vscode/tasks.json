@@ -96,6 +96,20 @@
 			"problemMatcher": [
 				"$gcc"
 			]
+		},
+        {
+			"label": "Build All",
+			"dependsOrder": "sequence",
+			"dependsOn": [
+				"clean",
+				"server",
+				"gui",
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": []
 		}
     ]
 }
