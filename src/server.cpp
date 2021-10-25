@@ -1,9 +1,9 @@
 #include <winsock2.h>
-#include "wex.h"
-#include "tcp.h"
 #include "raven_sqlite.h"
 #include "cRunWatch.h"
 #include "cZone.h"
+#include "await.h"
+#include "cTCP.h"
 
 void simulate()
 {
@@ -42,45 +42,53 @@ void calculate()
 
     theZone.Report();
 }
-main()
-{
-    // hidden frame to receive windows messages
-    wex::gui &thefm = wex::maker::make();
+
+    raven::await::cAwait waiter;
 
     // construct TCP server
-    wex::tcp &theTCP = wex::maker::make<wex::tcp>(thefm);
-    theTCP.server("5000");
+    cTCP theTCP;
 
-    // handle new client connection
-    thefm.events().tcpServerAccept([&]
-                                   {
-                                       std::cout << "Client connected\n";
-                                       theTCP.read();
-                                   });
+void readHandler()
+{
+    if (!theTCP.isConnected())
+    {
+        // wait for another client
+        theTCP.server("", "5000");
+        return;
+    }
+    std::string smsg = theTCP.readMsg();
+    if (smsg == "simu")
+        simulate();
+    else if (smsg == "calc")
+        calculate();
+    else
+        std::cout << "Msg read: " << smsg << "\n";
 
-    // handle message from client
-    thefm.events()
-        .tcpRead([&]
-                 {
-                     if( ! theTCP.isConnected() )
-                    {
-                        // wait for another client
-                        theTCP.server("5000");
-                        return;
-                    }
-                     std::string smsg(theTCP.rcvbuf());
-                     if (smsg == "simu")
-                         simulate();
-                     else if (smsg == "calc")
-                         calculate();
-                     else
-                         std::cout << "Msg read: " << smsg << "\n";
+    // setup for next message
+    waiter(
+        [&]
+        { theTCP.read(); },
+        readHandler);
+}
+main()
+{
 
-                     // setup for next message
-                     theTCP.read();
-                 });
 
-    std::cout << "start server running\n";
+    theTCP.server("", "5000");
 
-    thefm.run();
+    waiter(
+        [&]
+        { theTCP.acceptClient(); },
+        [&]
+        {
+            std::cout << "client connected" << std::endl;
+
+            // wait for first message
+            waiter(
+                [&]
+                { theTCP.read(); },
+                readHandler);
+        });
+
+    waiter.run();
 }

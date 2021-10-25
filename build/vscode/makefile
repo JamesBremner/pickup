@@ -1,6 +1,7 @@
 #source file search paths
 VPATH = ../../src ../../src/ext \
-	../../../raven-set ../../../PathFinder/src ../../../quadtree/src
+	../../../raven-set ../../../PathFinder/src ../../../quadtree/src \
+	../../../await/src
 
 INCS = \
 	-I../../../boost/boost1_72 \
@@ -8,6 +9,8 @@ INCS = \
 	-I../../../PathFinder/src \
 	-I../../../quadtree/src \
 	-I../../../windex/include \
+	-I../../../await/include \
+	-I../../../await/src \
 	-I../../src
 
 LIBS = -lstdc++fs -lgdi32 -lcomdlg32 -lws2_32 -lwsock32
@@ -24,7 +27,7 @@ _TST = pickup.o cZone.o cOrder.o cRider.o \
 
 _SERVER = server.o cZone.o cOrder.o cRider.o config.o \
 	cPathFinder.o cGraph.o quadtree.o cRunWatch.o \
-	raven_sqlite.o sqlite3.o
+	cTCP.o raven_sqlite.o sqlite3.o
 
 _GUI = gui.o config.o \
 	raven_sqlite.o sqlite3.o

@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/../../bin/gui.exe",
+            "program": "${workspaceFolder}/../../bin/server.exe",
             "args": ["-sim"],
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}/../../bin",
