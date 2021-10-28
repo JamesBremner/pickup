@@ -33,7 +33,6 @@ private:
     wex::editbox &edRest;
 
     wex::tcp &myTCP;
-    SOCKET *myClientSocket;
 
     void costructZonePG(wex::propertyGrid &pg);
     void constructResults();
@@ -105,6 +104,13 @@ cGUI::cGUI()
 
     costructZonePG(pg);
     constructResults();
+
+    myForm.events()
+        .tcpServerAccept([&]
+        {
+            std::cout << "=> myForm.events().tcpServerAccept" << std::endl;
+            status("Connected to server ");
+        });
 
     myForm.events()
         .tcpRead([&]
@@ -237,11 +243,7 @@ void cGUI::connect()
         myTCP.client(
             editIP.text(),
             editPort.text());
-        if (myTCP.isConnected())
-        {
-            status("Connected to server ");
-            myTCP.read();
-        }
+        status("Waiting for server");
     }
     catch (std::runtime_error &e)
     {
@@ -255,11 +257,11 @@ void cGUI::status(const std::string &msg)
 }
 void cGUI::run()
 {
+    myTCP.run();
     myForm.run();
 }
 int main()
 {
-
     cGUI gui;
     gui.run();
     return 0;

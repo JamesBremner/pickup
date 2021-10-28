@@ -30,7 +30,12 @@ _SERVER = server.o cZone.o cOrder.o cRider.o config.o \
 	cTCP.o raven_sqlite.o sqlite3.o
 
 _GUI = gui.o config.o \
+	cTCP.o \
 	raven_sqlite.o sqlite3.o
+
+	
+	
+gui.o : ../../../windex/include/tcp.h ../../../await/src/ctcp.h
 
 
 TST = $(patsubst %,$(ODIR)/%,$(_TST))
