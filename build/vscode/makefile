@@ -1,7 +1,6 @@
 #source file search paths
 VPATH = ../../src ../../src/ext \
-	../../../raven-set ../../../PathFinder/src ../../../quadtree/src \
-	../../../await/src
+	../../../raven-set ../../../PathFinder/src ../../../quadtree/src
 
 INCS = \
 	-I../../../boost/boost1_72 \
@@ -10,7 +9,6 @@ INCS = \
 	-I../../../quadtree/src \
 	-I../../../windex/include \
 	-I../../../await/include \
-	-I../../../await/src \
 	-I../../src
 
 LIBS = -lstdc++fs -lgdi32 -lcomdlg32 -lws2_32 -lwsock32

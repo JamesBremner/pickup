@@ -46,7 +46,7 @@ void calculate()
     raven::await::cAwait waiter;
 
     // construct TCP server
-    cTCP theTCP;
+    raven::set::cTCP theTCP;
 
 void readHandler()
 {
